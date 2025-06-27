@@ -40,12 +40,63 @@ def extract_key_value_pairs(ws, key_col: int, value_col: int) -> Dict[str, Any]:
     
     return key_value_pairs
 
+def find_preference_weight_columns(ws) -> Optional[Tuple[int, int]]:
+    """Find columns containing 'preference' and 'weight' headers."""
+    pref_col = None
+    weight_col = None
+    
+    # Search through the worksheet to find preference/weight headers
+    for row in ws.iter_rows(max_row=10):  # Search first 10 rows
+        for cell in row:
+            if cell.value and isinstance(cell.value, str):
+                cell_value = cell.value.lower().strip()
+                if 'customer preferences' in cell_value:
+                    pref_col = cell.column
+                elif 'weight' in cell_value:
+                    weight_col = cell.column
+    
+    return (pref_col, weight_col) if pref_col and weight_col else None
+
+def extract_preferences_with_weights(ws, pref_col: int, weight_col: int) -> Dict[str, Any]:
+    """Extract customer preferences with weights and calculate relative weights."""
+    preferences = {}
+    total_weight = 0
+    
+    # First pass: collect all data and calculate total weight
+    for row in ws.iter_rows(min_row=2):
+        pref_cell = row[pref_col - 1] if len(row) >= pref_col else None
+        weight_cell = row[weight_col - 1] if len(row) >= weight_col else None
+        
+        if pref_cell and pref_cell.value is not None:
+            preference = str(pref_cell.value).strip()
+            
+            try:
+                weight = int(weight_cell.value) if weight_cell and weight_cell.value is not None else 0
+            except (ValueError, TypeError):
+                weight = 0
+                
+            if preference and weight > 0:  # Only add valid preferences with positive weights
+                preferences[preference] = {"weight": weight}
+                total_weight += weight
+    
+    # Second pass: calculate relative weights
+    if total_weight > 0:
+        for preference in preferences:
+            relative_weight = preferences[preference]["weight"] / total_weight
+            preferences[preference]["relative_weight"] = round(relative_weight, 4)
+    
+    return {
+        "preferences": preferences,
+        "total_weight": total_weight
+    }
+
 def extract_formulas_and_data(file_path: str) -> Dict[str, Any]:
     """Extract formulas and key-value data from a single Excel file."""
     workbook = load_workbook(filename=file_path, data_only=False)
     result = {
         "formulas": [],
-        "key_value_data": {}
+        "key_value_data": {},
+        "customer_preferences": {}
     }
 
     for sheet_name in workbook.sheetnames:
@@ -71,6 +122,14 @@ def extract_formulas_and_data(file_path: str) -> Dict[str, Any]:
             key_value_pairs = extract_key_value_pairs(ws, key_col, value_col)
             if key_value_pairs:
                 result["key_value_data"][sheet_name] = key_value_pairs
+        
+        # Extract customer preferences with weights
+        pref_columns = find_preference_weight_columns(ws)
+        if pref_columns:
+            pref_col, weight_col = pref_columns
+            preference_data = extract_preferences_with_weights(ws, pref_col, weight_col)
+            if preference_data["preferences"]:
+                result["customer_preferences"][sheet_name] = preference_data
     
     return result
 
@@ -95,8 +154,9 @@ def batch_process_files(input_dir: str, output_file: str) -> None:
             
             formula_count = len(file_data["formulas"])
             kv_count = sum(len(sheet_data) for sheet_data in file_data["key_value_data"].values())
+            pref_count = sum(len(sheet_data["preferences"]) for sheet_data in file_data["customer_preferences"].values())
             
-            print(f"Found {formula_count} formulas and {kv_count} key-value pairs")
+            print(f"Found {formula_count} formulas, {kv_count} key-value pairs, and {pref_count} customer preferences")
             
         except Exception as e:
             print(f"Error processing {file_path.name}: {str(e)}")
