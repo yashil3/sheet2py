@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rule builder</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">Dataset</h1>
+        
+        {% for filename, file_data in data.items() %}
+        <div class="file-section">
+            <h2 class="file-title">{{ filename }}</h2>
+            
+            <!-- Vehicle Info Section -->
+            {% if file_data.key_value_data %}
+                {% for sheet_name, sheet_data in file_data.key_value_data.items() %}
+                <div class="section">
+                    <div class="section-header" onclick="toggleSection('vehicle-info-{{ loop.index }}')">
+                        <span>Vehicle Info</span>
+                        <span class="toggle-icon">^</span>
+                    </div>
+                    <div id="vehicle-info-{{ loop.index }}" class="section-content">
+                        <div class="data-grid">
+                            {% for key, value in sheet_data.items() %}
+                            <div class="data-row">
+                                <div class="data-key">{{ key }}</div>
+                                <div class="data-value">{{ value }}</div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% endif %}
+            
+            <!-- Customer Preferences Section -->
+            {% if file_data.customer_preferences %}
+                {% for sheet_name, pref_data in file_data.customer_preferences.items() %}
+                <div class="section">
+                    <div class="section-header" onclick="toggleSection('customer-prefs-{{ loop.index }}')">
+                        <span>Customer Prefs</span>
+                        <span class="toggle-icon">^</span>
+                    </div>
+                    <div id="customer-prefs-{{ loop.index }}" class="section-content">
+                        <div class="preferences-grid">
+                            {% for pref_name, pref_info in pref_data.preferences.items() %}
+                            <div class="pref-row">
+                                <div class="pref-name">{{ pref_name }}</div>
+                                <div class="pref-values">
+                                    {% if pref_info.get('preference_values') %}
+                                        {% for value in pref_info.get('preference_values', []) %}
+                                            <span class="pref-value-tag">{{ value }}</span>
+                                        {% endfor %}
+                                    {% else %}
+                                        <span class="no-values">No values specified</span>
+                                    {% endif %}
+                                </div>
+                                <div class="pref-weight">Weight: {{ pref_info.weight }}</div>
+                                <div class="pref-relative">{{ "%.1f%%"|format(pref_info.relative_weight * 100) }}</div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <div class="total-weight">
+                            Total Weight: {{ pref_data.total_weight }}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% endif %}
+            
+        </div>
+        {% endfor %}
+        
+        {% if not data %}
+        <div class="no-data">
+            <p>No data found. Please ensure extracted_data.json exists in the project directory.</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
