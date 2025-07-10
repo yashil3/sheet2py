@@ -3,3 +3,5 @@ extracted_data.json
 extracted_formulas.json
 extracted_data.jso
 .vscode/settings.json
+conversion_summary_fixed.json
+converted_rules_fixed.py
