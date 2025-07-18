@@ -1,7 +1,32 @@
-Sample Spreadsheet(1).xlsx
-extracted_data.json
-extracted_formulas.json
-extracted_data.jso
-.vscode/settings.json
-conversion_summary_fixed.json
-converted_rules_fixed.py
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtualenv
+venv/
+.env
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+
+# VS Code
+.vscode/
+
+# Data / output files
+*.xlsx
+*.json
+*.log
+
+# OS files
+.DS_Store
+ANTLR/ExcelFormulaVisitor.py
+ANTLR/ExcelFormulaParser.py
+ANTLR/ExcelFormulaListener.py
+ANTLR/ExcelFormulaLexer.tokens
+ANTLR/ExcelFormulaLexer.py
+ANTLR/ExcelFormulaLexer.interp
+ANTLR/ExcelFormula.tokens
+ANTLR/ExcelFormula.interp
