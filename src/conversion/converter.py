@@ -4,14 +4,14 @@ from typing import Dict, Any, List, Optional
 from dataclasses import dataclass
 import time
 import logging
-from tqdm import tqdm  # Import tqdm for progress bar
+from tqdm import tqdm
 import antlr4
-from ANTLR.ExcelFormulaLexer import ExcelFormulaLexer
-from ANTLR.ExcelFormulaParser import ExcelFormulaParser
-from ANTLR.FormulaConverterVisitor import FormulaConverterVisitor
-from rules_generator import generate_python_rules_file
+from src.antlr_files.ExcelFormulaLexer import ExcelFormulaLexer
+from src.antlr_files.ExcelFormulaParser import ExcelFormulaParser
+from src.antlr_files.FormulaConverterVisitor import FormulaConverterVisitor
+from .rules_generator import generate_python_rules_file
+import networkx as nx
 
-# Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s')
 
 @dataclass
@@ -21,18 +21,17 @@ class ConvertedFormula:
     python_expression: str
     cell_reference: str
     sheet: str
-    dependencies: List[str]
+    dependencies: nx.DiGraph
     description: str
     rule_type: str
 
 class ExcelToPythonConverter:
     """Fixed converter for Excel formulas to Python expressions."""
-    
+
     def __init__(self, data: Dict[str, Any]):
         self.data = data
         self.converted_cells = set()
-        
-    # All conversion is now handled in analyze_formula via the ANTLR grammar+visitor.
+
     def convert_expression(
         self,
         expr: str,
@@ -62,7 +61,7 @@ class ExcelToPythonConverter:
             return "scoring_rule"
         else:
             return "general_calculation"
-    
+
     def generate_description(self, formula: str, rule_type: str) -> str:
         """Generate a human-readable description of the formula."""
         descriptions = {
@@ -75,51 +74,58 @@ class ExcelToPythonConverter:
             "general_calculation": "General calculation or transformation"
         }
         return descriptions.get(rule_type, "Unknown formula type")
-    
+
     def analyze_formula(self, formula: str, cell: str, sheet: str, shared_data: Dict[str, Any]) -> ConvertedFormula:
         """Analyze and convert a single formula using ANTLR."""
         original = formula
 
-        # Extract dependencies (cell references from original formula)
-        dependencies = re.findall(r'([A-Za-z_]+!)?\$?([A-Z]+)\$?(\d+)', formula)
-        dep_list = []
-        for dep in dependencies:
-            sheet_name = dep[0].rstrip('!') if dep[0] else None
-            cell_ref = f"{dep[1]}{dep[2]}"
-            if sheet_name:
-                dep_list.append(f"'{sheet_name}'!{cell_ref}")
-            else:
-                dep_list.append(cell_ref)
-
-        # Remove duplicates while preserving order
-        seen = set()
-        unique_deps = [x for x in dep_list if not (x in seen or seen.add(x))]
-
-        # strip leading '=' so grammar can parse it
         formula_body = formula[1:] if formula.startswith('=') else formula
         input_stream = antlr4.InputStream(formula_body)
 
         lexer = ExcelFormulaLexer(input_stream)
         stream = antlr4.CommonTokenStream(lexer)
         parser = ExcelFormulaParser(stream)
-        
-        # remove default listeners and bail on first syntax error
+
         parser.removeErrorListeners()
         from antlr4.error.Errors import ParseCancellationException
         from antlr4.error.ErrorStrategy import BailErrorStrategy
         parser._errHandler = BailErrorStrategy()
         try:
-            tree = parser.formula()  # start rule
+            tree = parser.formula()
         except ParseCancellationException as e:
             raise Exception(f"Invalid formula: {formula}") from e
 
-        visitor = FormulaConverterVisitor(self.data, shared_data)
-        python_expression = visitor.visit(tree)  # now works because visitor is a real ParseTreeVisitor
+        visitor = FormulaConverterVisitor(self.data, shared_data, sheet)
+        python_expression = visitor.visit(tree)
 
-        # Classify the formula based on its structure
+        dependencies = visitor.dependencies
+        dep_list = []
+        for dep in dependencies:
+            if ':' in dep:
+                sheet_name, cells = dep.split('!')
+                start, end = cells.split(':')
+                # Expand range into individual cells
+                col_start = ''.join(filter(str.isalpha, start))
+                row_start = int(''.join(filter(str.isdigit, start)))
+                col_end = ''.join(filter(str.isalpha, end))
+                row_end = int(''.join(filter(str.isdigit, end)))
+
+                for col in range(ord(col_start), ord(col_end) + 1):
+                    for row in range(row_start, row_end + 1):
+                        dep_list.append(f"{sheet_name}!{chr(col)}{row}")
+            else:
+                dep_list.append(dep)
+
+        seen = set()
+        unique_deps = [x for x in dep_list if not (x in seen or seen.add(x))]
+
+        deps_graph = nx.DiGraph()
+        node_id = f"{sheet}!{cell}"
+        deps_graph.add_node(node_id)
+        for dep in unique_deps:
+            deps_graph.add_edge(dep, node_id)
+
         rule_type = self.classify_formula(formula)
-
-        # Generate description
         description = self.generate_description(formula, rule_type)
 
         return ConvertedFormula(
@@ -127,20 +133,19 @@ class ExcelToPythonConverter:
             python_expression=python_expression,
             cell_reference=cell,
             sheet=sheet,
-            dependencies=unique_deps,
+            dependencies=deps_graph,
             description=description,
             rule_type=rule_type
         )
-    
+
     def generate_python_function(self, converted: ConvertedFormula) -> str:
         """Generate a complete Python function from converted formula."""
-        # Create function name from cell reference
         func_name = f"rule_{converted.sheet.lower()}_{converted.cell_reference.lower()}"
-        
-        # Create dependencies string
-        deps_str = ", ".join(converted.dependencies)
-        
-        # Generate function code
+
+        node_id = f"{converted.sheet}!{converted.cell_reference}"
+        deps = list(converted.dependencies.predecessors(node_id))
+        deps_str = ", ".join(deps)
+
         function_code = f'''def {func_name}(data, shared_data):
     """
     {converted.description}
@@ -155,73 +160,19 @@ class ExcelToPythonConverter:
     except Exception as e:
         print(f"Error in {func_name}: {{e}}")
         return None'''
-        
+
         return function_code
 
-def main():
-    """Main conversion function."""
-    start_time = time.time()
-    with open('extracted_data.json', 'r') as f:
-        extracted_data = json.load(f)
+def build_dependency_graph(converted_formulas: List[ConvertedFormula]) -> nx.DiGraph:
+    """Builds a dependency graph from a list of converted formulas using networkx."""
+    all_graphs = [f.dependencies for f in converted_formulas]
+    return nx.compose_all(all_graphs)
 
-    converter = ExcelToPythonConverter(extracted_data)
+def topological_sort(graph: nx.DiGraph) -> List[str]:
+    """Topologically sorts a dependency graph using networkx."""
+    try:
+        return list(nx.topological_sort(graph))
+    except nx.NetworkXUnfeasible:
+        raise ValueError("Circular dependency detected!")
 
-    # Pre-calculate shared values
-    shared_data = {}
 
-    converted_formulas = []
-
-    # Use tqdm to create a progress bar
-    formulas = []
-    for filename, file_data in extracted_data.items():
-        formulas.extend(file_data.get("formulas", []))
-
-    with tqdm(total=len(formulas), desc="Converting Formulas") as pbar:
-        for formula_data in formulas:
-            try:
-                converted = converter.analyze_formula(
-                    formula_data["formula"],
-                    formula_data["cell"],
-                    formula_data["sheet"],
-                    shared_data  # Pass shared_data
-                )
-                converted_formulas.append(converted)
-                logging.info(f"✓ Converted {formula_data['cell']}: {formula_data['formula']}")
-            except Exception as e:
-                logging.error(f"✗ Error converting {formula_data['cell']}: {e}")
-            pbar.update(1)  # Update progress bar after each formula
-
-    print(f"\nSuccessfully converted {len(converted_formulas)} formulas")
-
-    # Generate Python file with all rule functions
-    if converted_formulas:
-        python_code = generate_python_rules_file(converter, converted_formulas, shared_data)
-
-        # Write to file
-        output_file = "converted_rules_fixed.py"
-        with open(output_file, 'w') as f:
-            f.write(python_code)
-        print(f"✓ Generated Python rules file: {output_file}")
-
-        # Also generate a summary JSON file
-        summary = []
-        for conv in converted_formulas:
-            summary.append({
-                "cell": conv.cell_reference,
-                "sheet": conv.sheet,
-                "rule_type": conv.rule_type,
-                "description": conv.description,
-                "original_formula": conv.original_formula,
-                "python_expression": conv.python_expression,
-                "dependencies": conv.dependencies
-            })
-
-        with open("conversion_summary_fixed.json", 'w') as f:
-            json.dump(summary, f, indent=2)
-        print(f"✓ Generated conversion summary: conversion_summary_fixed.json")
-
-    end_time = time.time()
-    print(f"Total execution time: {end_time - start_time:.2f} seconds")
-
-if __name__ == "__main__":
-    main()

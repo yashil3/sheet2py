@@ -143,24 +143,101 @@ def find_text(search_text, search_in):
 
 # Complex functions that should be identified for user replacement
 def vlookup(lookup_value, data, sheet, range_text, col_index, exact_match=True):
-    """VLOOKUP - complex function for user replacement"""
-    return f"VLOOKUP({lookup_value}, {sheet}!{range_text}, {col_index}, {exact_match})"
+    """VLOOKUP implementation"""
+    start_cell, end_cell = range_text.split(':')
+    start_col, start_row = parse_cell_ref(start_cell)
+    end_col, end_row = parse_cell_ref(end_cell)
+
+    lookup_col_str = chr(ord('A') + start_col - 1)
+
+    for row in range(start_row, end_row + 1):
+        cell_ref = f"{lookup_col_str}{row}"
+        try:
+            cell_value = data[sheet][cell_ref]
+            if (exact_match and cell_value == lookup_value) or \
+               (not exact_match and cell_value >= lookup_value):
+                
+                return_col_str = chr(ord('A') + start_col + col_index - 2)
+                return_cell_ref = f"{return_col_str}{row}"
+                return data[sheet][return_cell_ref]
+        except KeyError:
+            continue
+    
+    return "#N/A"
 
 def index(data, sheet, range_text, row, col=1):
-    """INDEX - complex function for user replacement"""
-    return f"INDEX({sheet}!{range_text}, {row}, {col})"
+    """INDEX implementation"""
+    start_cell, end_cell = range_text.split(':')
+    start_col, start_row = parse_cell_ref(start_cell)
+    
+    target_col = start_col + col - 1
+    target_row = start_row + row - 1
+
+    target_cell_ref = f"{chr(ord('A') + target_col - 1)}{target_row}"
+
+    try:
+        return data[sheet][target_cell_ref]
+    except KeyError:
+        return "#REF!"
 
 def indirect(data, ref):
-    """INDIRECT - complex function for user replacement"""
-    return f"INDIRECT({ref})"
+    """INDIRECT implementation"""
+    try:
+        sheet, cell = ref.split('!')
+        return get_cell(data, sheet, cell)
+    except (ValueError, KeyError):
+        try:
+            # Assume current sheet if no sheet is specified
+            return get_cell(data, "Formulas", ref)
+        except KeyError:
+            return "#REF!"
 
 def countifs(data, ranges_criteria):
-    """COUNTIFS - complex function for user replacement"""
-    return f"COUNTIFS({ranges_criteria})"
+    """COUNTIFS implementation"""
+    # Get the dimensions of the first range to determine the number of rows to check
+    first_range_sheet, first_range_cells = ranges_criteria[0]
+    start_cell, end_cell = first_range_cells.split(':')
+    start_col, start_row = parse_cell_ref(start_cell)
+    end_col, end_row = parse_cell_ref(end_cell)
+
+    count = 0
+    for row in range(start_row, end_row + 1):
+        all_criteria_met = True
+        for sheet, cells, criteria in ranges_criteria:
+            # For simplicity, we assume all ranges have the same dimensions
+            # and we check the corresponding cell in each range
+            col, _ = parse_cell_ref(cells.split(':')[0])
+            cell_ref = f"{chr(ord('A') + col - 1)}{row}"
+            try:
+                value = data[sheet][cell_ref]
+                if not evaluate_criteria(value, criteria):
+                    all_criteria_met = False
+                    break
+            except KeyError:
+                all_criteria_met = False
+                break
+        
+        if all_criteria_met:
+            count += 1
+            
+    return count
 
 def eomonth(start_date, months):
-    """EOMONTH - complex function for user replacement"""
-    return f"EOMONTH({start_date}, {months})"
+    """EOMONTH implementation"""
+    try:
+        start_date = datetime.strptime(start_date, "%Y-%m-%d")
+        # Move to the first day of the next month
+        year = start_date.year + (start_date.month + months) // 12
+        month = (start_date.month + months) % 12
+        if month == 0:
+            month = 12
+            year -= 1
+        
+        # Get the last day of the target month
+        last_day = monthrange(year, month)[1]
+        return datetime(year, month, last_day).strftime("%Y-%m-%d")
+    except (ValueError, TypeError):
+        return "#VALUE!"
 
 # Helper functions
 def parse_cell_ref(cell_ref):
