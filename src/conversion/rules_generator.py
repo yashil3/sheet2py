@@ -4,7 +4,7 @@ def generate_python_rules_file(converter, converted_formulas, shared_data, sorte
 # Generated from Excel formulas
 
 # Import Excel-like helper functions
-from .excel_functions import *
+from src.conversion.excel_functions import *
 
 # Shared data (pre-calculated values)
 shared_data = {}
