@@ -6,7 +6,8 @@ import os
 
 from src.conversion.converter import ExcelToPythonConverter, build_dependency_graph, topological_sort, ConvertedFormula
 from src.conversion.rules_generator import generate_python_rules_file
-from src.utils.scrape import extract_formulas_from_excel
+from src.evaluation.evaluator import evaluate_rules
+from src.utils.scrape import extract_data_and_formulas_from_excel
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s')
 
@@ -19,18 +20,20 @@ def main():
     os.makedirs(output_dir, exist_ok=True)
 
     all_formulas = []
+    all_data = {}
     for filename in os.listdir(input_dir):
         if filename.endswith(('.xlsx', '.xlsm')):
             file_path = os.path.join(input_dir, filename)
-            logging.info(f"Extracting formulas from {filename}...")
-            extracted_data = extract_formulas_from_excel(file_path)
-            for sheet_name, formulas_in_sheet in extracted_data.items():
-                for formula_data in formulas_in_sheet:
+            logging.info(f"Extracting data and formulas from {filename}...")
+            extracted_data = extract_data_and_formulas_from_excel(file_path)
+            for sheet_name, sheet_data in extracted_data.items():
+                for formula_data in sheet_data["formulas"]:
                     all_formulas.append({
                         "formula": formula_data["formula"],
                         "cell": formula_data["cell"],
                         "sheet": sheet_name
                     })
+                all_data[sheet_name] = sheet_data["data"]
 
     converter = ExcelToPythonConverter({})
     shared_data = {}
@@ -90,6 +93,17 @@ def main():
         with open(os.path.join(output_dir, "conversion_summary.json"), 'w') as f:
             json.dump(summary, f, indent=2)
         print(f"✓ Generated conversion summary: {os.path.join(output_dir, "conversion_summary.json")}")
+
+        # Evaluate the rules
+        evaluation_results = evaluate_rules(summary, all_data)
+
+        # Append evaluation results to the summary
+        for item in summary:
+            item['evaluation_result'] = evaluation_results.get(item['cell'])
+
+        with open(os.path.join(output_dir, "conversion_summary.json"), 'w') as f:
+            json.dump(summary, f, indent=2)
+        print(f"✓ Appended evaluation results to conversion summary.")
 
     end_time = time.time()
     print(f"Total execution time: {end_time - start_time:.2f} seconds")

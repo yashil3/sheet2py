@@ -34,7 +34,7 @@ class FormulaConverterVisitor(ExcelFormulaVisitor):
             sheet, cells = self.sheet_name, text
         start, end = cells.split(':')
         self.dependencies.add(f"{sheet}!{start}:{end}")
-        return f"sum_range(self.data, '{sheet}', '{start}', '{end}')"
+        return f"sum_range(data, '{sheet}', '{start}', '{end}')"
 
     def visitOrExpr(self, ctx:ExcelFormulaParser.OrExprContext):
         expressions = [self.visit(expr) for expr in ctx.expressionList().expression()]
@@ -53,7 +53,7 @@ class FormulaConverterVisitor(ExcelFormulaVisitor):
         start, end = cells.split(':')
         self.dependencies.add(f"{sheet}!{start}:{end}")
         criteria = self.visit(ctx.expression())
-        return f"count_if(self.data, '{sheet}', '{start}', '{end}', {criteria})"
+        return f"count_if(data, '{sheet}', '{start}', '{end}', {criteria})"
 
     def visitIfErrorExpr(self, ctx:ExcelFormulaParser.IfErrorExprContext):
         try_expr = self.visit(ctx.expression(0))
@@ -80,7 +80,7 @@ class FormulaConverterVisitor(ExcelFormulaVisitor):
         else:
             sheet, cell = self.sheet_name, text
         self.dependencies.add(f"{sheet}!{cell}")
-        return f"get_cell(self.data, '{sheet}', '{cell}')"
+        return f"get_cell(data, '{sheet}', '{cell}')"
 
     def visitNumberExpr(self, ctx:ExcelFormulaParser.NumberExprContext):
         return ctx.NUMBER().getText()
@@ -111,7 +111,7 @@ class FormulaConverterVisitor(ExcelFormulaVisitor):
         else:
             sheet, cells = 'Formulas', text
         start, end = cells.split(':')
-        return f"count_range(self.data, '{sheet}', '{start}', '{end}')"
+        return f"count_range(data, '{sheet}', '{start}', '{end}')"
 
     def visitVLookupExpr(self, ctx:ExcelFormulaParser.VLookupExprContext):
         lookup_value = self.visit(ctx.expression(0))
@@ -122,7 +122,7 @@ class FormulaConverterVisitor(ExcelFormulaVisitor):
             sheet, cells = 'Formulas', table_text
         col_index = self.visit(ctx.expression(1))
         exact_match = self.visit(ctx.expression(2)) if ctx.expression(2) else "True"
-        return f"vlookup({lookup_value}, self.data, '{sheet}', '{cells}', {col_index}, {exact_match})"
+        return f"vlookup({lookup_value}, data, '{sheet}', '{cells}', {col_index}, {exact_match})"
 
     def visitRoundDownExpr(self, ctx:ExcelFormulaParser.RoundDownExprContext):
         value = self.visit(ctx.expression(0))
@@ -137,11 +137,11 @@ class FormulaConverterVisitor(ExcelFormulaVisitor):
             sheet, cells = self.sheet_name, range_text
         row = self.visit(ctx.expression(0))
         col = self.visit(ctx.expression(1)) if ctx.expression(1) else "1"
-        return f"index(self.data, '{sheet}', '{cells}', {row}, {col})"
+        return f"index(data, '{sheet}', '{cells}', {row}, {col})"
 
     def visitIndirectExpr(self, ctx:ExcelFormulaParser.IndirectExprContext):
         ref = self.visit(ctx.expression())
-        return f"indirect(self.data, {ref})"
+        return f"indirect(data, {ref})"
 
     def visitCountIfsExpr(self, ctx:ExcelFormulaParser.CountIfsExprContext):
         ranges_criteria = []
@@ -153,7 +153,7 @@ class FormulaConverterVisitor(ExcelFormulaVisitor):
                 sheet, cells = 'Formulas', range_text
             criteria = self.visit(ctx.expression(i//2))
             ranges_criteria.append(f"('{sheet}', '{cells}', {criteria})")
-        return f"countifs(self.data, [{', '.join(ranges_criteria)}])"
+        return f"countifs(data, [{', '.join(ranges_criteria)}])"
 
     def visitEoMonthExpr(self, ctx:ExcelFormulaParser.EoMonthExprContext):
         start_date = self.visit(ctx.expression(0))
@@ -174,7 +174,7 @@ class FormulaConverterVisitor(ExcelFormulaVisitor):
         else:
             sheet, cells = self.sheet_name, text
         start, end = cells.split(':')
-        return f"average_range(self.data, '{sheet}', '{start}', '{end}')"
+        return f"average_range(data, '{sheet}', '{start}', '{end}')"
 
     def visitSumIfExpr(self, ctx:ExcelFormulaParser.SumIfExprContext):
         text = ctx.range_().getText()
@@ -184,7 +184,7 @@ class FormulaConverterVisitor(ExcelFormulaVisitor):
             sheet, cells = self.sheet_name, text
         start, end = cells.split(':')
         criteria = self.visit(ctx.expression())
-        return f"sum_if(self.data, '{sheet}', '{start}', '{end}', {criteria})"
+        return f"sum_if(data, '{sheet}', '{start}', '{end}', {criteria})"
 
     def visitConcatExpr(self, ctx:ExcelFormulaParser.ConcatExprContext):
         expressions = [self.visit(expr) for expr in ctx.expressionList().expression()]
