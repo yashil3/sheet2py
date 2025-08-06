@@ -30,6 +30,7 @@ expression
     | STRING                                                    # StringExpr
     | expression operator=('*'|'/'|'+'|'-'|'>'|'<'|'>='|'<='|'=') expression  # BinaryOpExpr
     | '(' expression ')'                                        # ParenthesizedExpr
+    | YEARFRAC '(' expression ',', expression ')'               # YearfracExp
     ;
 
 expressionList : expression (',' expression)*;
@@ -63,7 +64,11 @@ ROUND   : [Rr][Oo][Uu][Nn][Dd];
 ISERROR : [Ii][Ss][Ee][Rr][Rr][Oo][Rr];
 SHEET_NAME: IDENTIFIER '!';
 CELL    : [A-Z]+[0-9]+;
+
+// note: need to add syntax for $ in cell references -- ? operator in ANTLR
+
 NUMBER  : [0-9]+('.'[0-9]+)?;
 STRING  : '"' (~'"')* '"';
 IDENTIFIER: [a-zA-Z_][a-zA-Z0-9_]*;
 WS      : [ \t\r\n]+ -> skip;
+YEARFRAC : [Yy][Ee][Aa][Rr][Ff][Rr][Aa][Cc];
