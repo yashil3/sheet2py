@@ -197,6 +197,15 @@ class ExcelFormulaListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by ExcelFormulaParser#RightExpr.
+    def enterRightExpr(self, ctx:ExcelFormulaParser.RightExprContext):
+        pass
+
+    # Exit a parse tree produced by ExcelFormulaParser#RightExpr.
+    def exitRightExpr(self, ctx:ExcelFormulaParser.RightExprContext):
+        pass
+
+
     # Enter a parse tree produced by ExcelFormulaParser#CellExpr.
     def enterCellExpr(self, ctx:ExcelFormulaParser.CellExprContext):
         pass

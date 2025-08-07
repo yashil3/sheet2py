@@ -114,6 +114,11 @@ class ExcelFormulaVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by ExcelFormulaParser#RightExpr.
+    def visitRightExpr(self, ctx:ExcelFormulaParser.RightExprContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by ExcelFormulaParser#CellExpr.
     def visitCellExpr(self, ctx:ExcelFormulaParser.CellExprContext):
         return self.visitChildren(ctx)
@@ -167,3 +172,7 @@ class ExcelFormulaVisitor(ParseTreeVisitor):
     # Visit a parse tree produced by ExcelFormulaParser#cellReference.
     def visitCellReference(self, ctx:ExcelFormulaParser.CellReferenceContext):
         return self.visitChildren(ctx)
+
+
+
+del ExcelFormulaParser

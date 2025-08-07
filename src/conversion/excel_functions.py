@@ -141,6 +141,17 @@ def find_text(search_text, search_in):
     except:
         return 0
 
+def right_text(text, num_chars):
+    """Extract rightmost characters from text (Excel RIGHT function)"""
+    try:
+        text = str(text)
+        num_chars = int(num_chars)
+        if num_chars <= 0:
+            return ""
+        return text[-num_chars:] if num_chars <= len(text) else text
+    except:
+        return ""
+
 # Complex functions that should be identified for user replacement
 def vlookup(lookup_value, data, sheet, range_text, col_index, exact_match=True):
     """VLOOKUP implementation"""
@@ -204,8 +215,7 @@ def countifs(data, ranges_criteria):
     for row in range(start_row, end_row + 1):
         all_criteria_met = True
         for sheet, cells, criteria in ranges_criteria:
-            # For simplicity, we assume all ranges have the same dimensions
-            # and we check the corresponding cell in each range
+            
             col, _ = parse_cell_ref(cells.split(':')[0])
             cell_ref = f"{chr(ord('A') + col - 1)}{row}"
             try:
@@ -276,7 +286,7 @@ def evaluate_criteria(value, criteria):
     elif criteria.startswith('='):
         return value == criteria[1:]
     else:
-        # For string comparisons, make them case-insensitive like Excel
+        # strip case
         if isinstance(value, str) and isinstance(criteria, str):
             return value.lower() == criteria.lower()
         else:

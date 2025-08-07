@@ -25,12 +25,13 @@ expression
     | LEN '(' expression ')'                                    # LenExpr
     | ROUND '(' expression ',' expression ')'                   # RoundExpr
     | ISERROR '(' expression ')'                                # IsErrorExpr
+    | YEARFRAC '(' expression ',' expression ')'                # YearfracExpr
+    | RIGHT '(' expression ',' expression ')'                   # RightExpr
     | cellReference                                             # CellExpr
     | NUMBER                                                    # NumberExpr
     | STRING                                                    # StringExpr
-    | expression operator=('*'|'/'|'+'|'-'|'>'|'<'|'>='|'<='|'=') expression  # BinaryOpExpr
+    | expression operator=('*'|'/'|'+'|'-'|'>'|'<'|'>='|'<='|'='|'&') expression  # BinaryOpExpr
     | '(' expression ')'                                        # ParenthesizedExpr
-    | YEARFRAC '(' expression ',' expression ')'                # YearfracExpr
     ;
 
 expressionList : expression (',' expression)*;
@@ -63,10 +64,14 @@ LEN     : [Ll][Ee][Nn];
 ROUND   : [Rr][Oo][Uu][Nn][Dd];
 ISERROR : [Ii][Ss][Ee][Rr][Rr][Oo][Rr];
 YEARFRAC : [Yy][Ee][Aa][Rr][Ff][Rr][Aa][Cc];
-SHEET_NAME: IDENTIFIER '!';
-CELL    : [A-Z]+[0-9]+;
+RIGHT   : [Rr][Ii][Gg][Hh][Tt];
 
-// note: need to add syntax for $ in cell references -- ? operator in ANTLR
+// Handle quoted sheet names with brackets and special characters
+SHEET_NAME: QUOTED_SHEET_NAME '!' | IDENTIFIER '!';
+QUOTED_SHEET_NAME: '\'' (~['\r\n])* '\'';
+
+// Handle absolute references with $ symbols
+CELL    : '$'? [A-Z]+ '$'? [0-9]+;
 
 NUMBER  : [0-9]+('.'[0-9]+)?;
 STRING  : '"' (~'"')* '"';

@@ -8,6 +8,17 @@ class FormulaConverterVisitor(ExcelFormulaVisitor):
         self.dependencies = set()
         self.sheet_name = sheet_name
 
+    def _extract_sheet_and_cells(self, text):
+        """Helper method to extract sheet name and cells from range text, handling quoted sheet names."""
+        if '!' in text:
+            sheet, cells = text.split('!')
+            # Handle quoted sheet names by removing quotes
+            if sheet.startswith("'") and sheet.endswith("'"):
+                sheet = sheet[1:-1]
+        else:
+            sheet, cells = self.sheet_name, text
+        return sheet, cells
+
     def visitFormula(self, ctx:ExcelFormulaParser.FormulaContext):
         return self.visit(ctx.expression())
 
@@ -28,10 +39,7 @@ class FormulaConverterVisitor(ExcelFormulaVisitor):
 
     def visitSumExpr(self, ctx: ExcelFormulaParser.SumExprContext):
         text = ctx.range_().getText()
-        if '!' in text:
-            sheet, cells = text.split('!')
-        else:
-            sheet, cells = self.sheet_name, text
+        sheet, cells = self._extract_sheet_and_cells(text)
         start, end = cells.split(':')
         self.dependencies.add(f"{sheet}!{start}:{end}")
         return f"sum_range(data, '{sheet}', '{start}', '{end}')"
@@ -46,10 +54,7 @@ class FormulaConverterVisitor(ExcelFormulaVisitor):
 
     def visitCountIfExpr(self, ctx: ExcelFormulaParser.CountIfExprContext):
         text = ctx.range_().getText()
-        if '!' in text:
-            sheet, cells = text.split('!')
-        else:
-            sheet, cells = self.sheet_name, text
+        sheet, cells = self._extract_sheet_and_cells(text)
         start, end = cells.split(':')
         self.dependencies.add(f"{sheet}!{start}:{end}")
         criteria = self.visit(ctx.expression())
@@ -62,10 +67,9 @@ class FormulaConverterVisitor(ExcelFormulaVisitor):
 
     def visitRowsExpr(self, ctx:ExcelFormulaParser.RowsExprContext):
         text = ctx.range_().getText()
-        sheet, cells = text.split('!') if '!' in text else (None, text)
+        sheet, cells = self._extract_sheet_and_cells(text)
         start, end = cells.split(':')
-        if sheet:
-            self.dependencies.add(f"{sheet}!{start}:{end}")
+        self.dependencies.add(f"{sheet}!{start}:{end}")
         return f"rows_count('{start}', '{end}')"
 
     def visitFindExpr(self, ctx:ExcelFormulaParser.FindExprContext):
@@ -75,10 +79,7 @@ class FormulaConverterVisitor(ExcelFormulaVisitor):
 
     def visitCellExpr(self, ctx:ExcelFormulaParser.CellExprContext):
         text = ctx.getText()
-        if '!' in text:
-            sheet, cell = text.split('!')
-        else:
-            sheet, cell = self.sheet_name, text
+        sheet, cell = self._extract_sheet_and_cells(text)
         self.dependencies.add(f"{sheet}!{cell}")
         return f"get_cell(data, '{sheet}', '{cell}')"
 
@@ -95,6 +96,9 @@ class FormulaConverterVisitor(ExcelFormulaVisitor):
         operator = ctx.operator.text
         if operator == '=':
             operator = '=='
+        elif operator == '&':
+            # Convert Excel concatenation to Python string concatenation
+            return f"str({left}) + str({right})"
         return f"({left} {operator} {right})"
 
     def visitParenthesizedExpr(self, ctx:ExcelFormulaParser.ParenthesizedExprContext):
@@ -106,20 +110,14 @@ class FormulaConverterVisitor(ExcelFormulaVisitor):
     # New function implementations
     def visitCountExpr(self, ctx:ExcelFormulaParser.CountExprContext):
         text = ctx.range_().getText()
-        if '!' in text:
-            sheet, cells = text.split('!')
-        else:
-            sheet, cells = 'Formulas', text
+        sheet, cells = self._extract_sheet_and_cells(text)
         start, end = cells.split(':')
         return f"count_range(data, '{sheet}', '{start}', '{end}')"
 
     def visitVLookupExpr(self, ctx:ExcelFormulaParser.VLookupExprContext):
         lookup_value = self.visit(ctx.expression(0))
         table_text = ctx.range_().getText()
-        if '!' in table_text:
-            sheet, cells = table_text.split('!')
-        else:
-            sheet, cells = 'Formulas', table_text
+        sheet, cells = self._extract_sheet_and_cells(table_text)
         col_index = self.visit(ctx.expression(1))
         exact_match = self.visit(ctx.expression(2)) if ctx.expression(2) else "True"
         return f"vlookup({lookup_value}, data, '{sheet}', '{cells}', {col_index}, {exact_match})"
@@ -131,10 +129,7 @@ class FormulaConverterVisitor(ExcelFormulaVisitor):
 
     def visitIndexExpr(self, ctx:ExcelFormulaParser.IndexExprContext):
         range_text = ctx.range_().getText()
-        if '!' in range_text:
-            sheet, cells = range_text.split('!')
-        else:
-            sheet, cells = self.sheet_name, range_text
+        sheet, cells = self._extract_sheet_and_cells(range_text)
         row = self.visit(ctx.expression(0))
         col = self.visit(ctx.expression(1)) if ctx.expression(1) else "1"
         return f"index(data, '{sheet}', '{cells}', {row}, {col})"
@@ -147,10 +142,7 @@ class FormulaConverterVisitor(ExcelFormulaVisitor):
         ranges_criteria = []
         for i in range(0, len(ctx.range_()), 2):
             range_text = ctx.range_(i).getText()
-            if '!' in range_text:
-                sheet, cells = range_text.split('!')
-            else:
-                sheet, cells = 'Formulas', range_text
+            sheet, cells = self._extract_sheet_and_cells(range_text)
             criteria = self.visit(ctx.expression(i//2))
             ranges_criteria.append(f"('{sheet}', '{cells}', {criteria})")
         return f"countifs(data, [{', '.join(ranges_criteria)}])"
@@ -169,19 +161,13 @@ class FormulaConverterVisitor(ExcelFormulaVisitor):
 
     def visitAverageExpr(self, ctx:ExcelFormulaParser.AverageExprContext):
         text = ctx.range_().getText()
-        if '!' in text:
-            sheet, cells = text.split('!')
-        else:
-            sheet, cells = self.sheet_name, text
+        sheet, cells = self._extract_sheet_and_cells(text)
         start, end = cells.split(':')
         return f"average_range(data, '{sheet}', '{start}', '{end}')"
 
     def visitSumIfExpr(self, ctx:ExcelFormulaParser.SumIfExprContext):
         text = ctx.range_().getText()
-        if '!' in text:
-            sheet, cells = text.split('!')
-        else:
-            sheet, cells = self.sheet_name, text
+        sheet, cells = self._extract_sheet_and_cells(text)
         start, end = cells.split(':')
         criteria = self.visit(ctx.expression())
         return f"sum_if(data, '{sheet}', '{start}', '{end}', {criteria})"
@@ -210,3 +196,8 @@ class FormulaConverterVisitor(ExcelFormulaVisitor):
         start_date = self.visit(ctx.expression(0))
         end_date = self.visit(ctx.expression(1))
         return f"yearfrac({start_date}, {end_date})"
+    
+    def visitRightExpr(self, ctx:ExcelFormulaParser.RightExprContext):
+        text = self.visit(ctx.expression(0))
+        num_chars = self.visit(ctx.expression(1))
+        return f"right_text({text}, {num_chars})"
