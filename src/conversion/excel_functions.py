@@ -238,6 +238,17 @@ def eomonth(start_date, months):
         return datetime(year, month, last_day).strftime("%Y-%m-%d")
     except (ValueError, TypeError):
         return "#VALUE!"
+    
+def yearfrac(start_date, end_date):
+    """YEARFRAC implementation"""
+    try:
+        start_date = datetime.strptime(start_date, "%Y-%m-%d")
+        end_date = datetime.strptime(end_date, "%Y-%m-%d")
+        delta_days = (end_date - start_date).days
+        year_fraction = delta_days / 365.0
+        return year_fraction
+    except (ValueError, TypeError):
+        return "#VALUE!"
 
 # Helper functions
 def parse_cell_ref(cell_ref):

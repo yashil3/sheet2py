@@ -65,6 +65,9 @@ ISERROR : [Ii][Ss][Ee][Rr][Rr][Oo][Rr];
 YEARFRAC : [Yy][Ee][Aa][Rr][Ff][Rr][Aa][Cc];
 SHEET_NAME: IDENTIFIER '!';
 CELL    : [A-Z]+[0-9]+;
+
+// note: need to add syntax for $ in cell references -- ? operator in ANTLR
+
 NUMBER  : [0-9]+('.'[0-9]+)?;
 STRING  : '"' (~'"')* '"';
 IDENTIFIER: [a-zA-Z_][a-zA-Z0-9_]*;

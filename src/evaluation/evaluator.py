@@ -34,6 +34,7 @@ def evaluate_rules(rules, data):
         'indirect': indirect,
         'countifs': countifs,
         'eomonth': eomonth,
+        'yearfrac': yearfrac,
     }
 
     for rule in rules:
