@@ -10,7 +10,7 @@ else:
 
 def serializedATN():
     return [
-        4,1,41,203,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,1,0,1,0,1,0,1,
+        4,1,42,210,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,1,0,1,0,1,0,1,
         1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
         1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
         1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
@@ -21,64 +21,66 @@ def serializedATN():
         1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
         1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
         1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-        1,1,1,1,1,1,1,1,1,1,3,1,176,8,1,1,1,1,1,1,1,5,1,181,8,1,10,1,12,
-        1,184,9,1,1,2,1,2,1,2,5,2,189,8,2,10,2,12,2,192,9,2,1,3,1,3,1,3,
-        1,3,1,4,3,4,199,8,4,1,4,1,4,1,4,0,1,2,5,0,2,4,6,8,0,1,1,0,4,12,228,
-        0,10,1,0,0,0,2,175,1,0,0,0,4,185,1,0,0,0,6,193,1,0,0,0,8,198,1,0,
-        0,0,10,11,3,2,1,0,11,12,5,0,0,1,12,1,1,0,0,0,13,14,6,1,-1,0,14,15,
-        5,14,0,0,15,16,5,1,0,0,16,17,3,2,1,0,17,18,5,2,0,0,18,19,3,2,1,0,
-        19,20,5,2,0,0,20,21,3,2,1,0,21,22,5,3,0,0,22,176,1,0,0,0,23,24,5,
-        15,0,0,24,25,5,1,0,0,25,26,3,6,3,0,26,27,5,3,0,0,27,176,1,0,0,0,
-        28,29,5,16,0,0,29,30,5,1,0,0,30,31,3,4,2,0,31,32,5,3,0,0,32,176,
-        1,0,0,0,33,34,5,17,0,0,34,35,5,1,0,0,35,36,3,4,2,0,36,37,5,3,0,0,
-        37,176,1,0,0,0,38,39,5,18,0,0,39,40,5,1,0,0,40,41,3,6,3,0,41,42,
-        5,2,0,0,42,43,3,2,1,0,43,44,5,3,0,0,44,176,1,0,0,0,45,46,5,19,0,
-        0,46,47,5,1,0,0,47,48,3,2,1,0,48,49,5,2,0,0,49,50,3,2,1,0,50,51,
-        5,3,0,0,51,176,1,0,0,0,52,53,5,20,0,0,53,54,5,1,0,0,54,55,3,6,3,
-        0,55,56,5,3,0,0,56,176,1,0,0,0,57,58,5,21,0,0,58,59,5,1,0,0,59,60,
-        3,2,1,0,60,61,5,2,0,0,61,62,3,2,1,0,62,63,5,3,0,0,63,176,1,0,0,0,
-        64,65,5,22,0,0,65,66,5,1,0,0,66,67,3,6,3,0,67,68,5,3,0,0,68,176,
-        1,0,0,0,69,70,5,23,0,0,70,71,5,1,0,0,71,72,3,2,1,0,72,73,5,2,0,0,
-        73,74,3,6,3,0,74,75,5,2,0,0,75,76,3,2,1,0,76,78,5,2,0,0,77,79,3,
-        2,1,0,78,77,1,0,0,0,78,79,1,0,0,0,79,80,1,0,0,0,80,81,5,3,0,0,81,
-        176,1,0,0,0,82,83,5,24,0,0,83,84,5,1,0,0,84,85,3,2,1,0,85,86,5,2,
-        0,0,86,87,3,2,1,0,87,88,5,3,0,0,88,176,1,0,0,0,89,90,5,25,0,0,90,
-        91,5,1,0,0,91,92,3,6,3,0,92,93,5,2,0,0,93,94,3,2,1,0,94,96,5,2,0,
-        0,95,97,3,2,1,0,96,95,1,0,0,0,96,97,1,0,0,0,97,98,1,0,0,0,98,99,
-        5,3,0,0,99,176,1,0,0,0,100,101,5,26,0,0,101,102,5,1,0,0,102,103,
-        3,2,1,0,103,104,5,3,0,0,104,176,1,0,0,0,105,106,5,27,0,0,106,107,
-        5,1,0,0,107,108,3,6,3,0,108,109,5,2,0,0,109,117,3,2,1,0,110,111,
-        5,2,0,0,111,112,3,6,3,0,112,113,5,2,0,0,113,114,3,2,1,0,114,116,
-        1,0,0,0,115,110,1,0,0,0,116,119,1,0,0,0,117,115,1,0,0,0,117,118,
-        1,0,0,0,118,120,1,0,0,0,119,117,1,0,0,0,120,121,5,3,0,0,121,176,
-        1,0,0,0,122,123,5,28,0,0,123,124,5,1,0,0,124,125,3,2,1,0,125,126,
-        5,2,0,0,126,127,3,2,1,0,127,128,5,3,0,0,128,176,1,0,0,0,129,130,
-        5,29,0,0,130,131,5,1,0,0,131,132,3,2,1,0,132,133,5,3,0,0,133,176,
-        1,0,0,0,134,135,5,30,0,0,135,136,5,1,0,0,136,137,3,6,3,0,137,138,
-        5,3,0,0,138,176,1,0,0,0,139,140,5,31,0,0,140,141,5,1,0,0,141,142,
-        3,6,3,0,142,143,5,2,0,0,143,144,3,2,1,0,144,145,5,3,0,0,145,176,
-        1,0,0,0,146,147,5,32,0,0,147,148,5,1,0,0,148,149,3,4,2,0,149,150,
-        5,3,0,0,150,176,1,0,0,0,151,152,5,33,0,0,152,153,5,1,0,0,153,154,
-        3,2,1,0,154,155,5,3,0,0,155,176,1,0,0,0,156,157,5,34,0,0,157,158,
-        5,1,0,0,158,159,3,2,1,0,159,160,5,2,0,0,160,161,3,2,1,0,161,162,
-        5,3,0,0,162,176,1,0,0,0,163,164,5,35,0,0,164,165,5,1,0,0,165,166,
-        3,2,1,0,166,167,5,3,0,0,167,176,1,0,0,0,168,176,3,8,4,0,169,176,
-        5,38,0,0,170,176,5,39,0,0,171,172,5,1,0,0,172,173,3,2,1,0,173,174,
-        5,3,0,0,174,176,1,0,0,0,175,13,1,0,0,0,175,23,1,0,0,0,175,28,1,0,
-        0,0,175,33,1,0,0,0,175,38,1,0,0,0,175,45,1,0,0,0,175,52,1,0,0,0,
-        175,57,1,0,0,0,175,64,1,0,0,0,175,69,1,0,0,0,175,82,1,0,0,0,175,
-        89,1,0,0,0,175,100,1,0,0,0,175,105,1,0,0,0,175,122,1,0,0,0,175,129,
-        1,0,0,0,175,134,1,0,0,0,175,139,1,0,0,0,175,146,1,0,0,0,175,151,
-        1,0,0,0,175,156,1,0,0,0,175,163,1,0,0,0,175,168,1,0,0,0,175,169,
-        1,0,0,0,175,170,1,0,0,0,175,171,1,0,0,0,176,182,1,0,0,0,177,178,
-        10,2,0,0,178,179,7,0,0,0,179,181,3,2,1,3,180,177,1,0,0,0,181,184,
-        1,0,0,0,182,180,1,0,0,0,182,183,1,0,0,0,183,3,1,0,0,0,184,182,1,
-        0,0,0,185,190,3,2,1,0,186,187,5,2,0,0,187,189,3,2,1,0,188,186,1,
-        0,0,0,189,192,1,0,0,0,190,188,1,0,0,0,190,191,1,0,0,0,191,5,1,0,
-        0,0,192,190,1,0,0,0,193,194,3,8,4,0,194,195,5,13,0,0,195,196,3,8,
-        4,0,196,7,1,0,0,0,197,199,5,36,0,0,198,197,1,0,0,0,198,199,1,0,0,
-        0,199,200,1,0,0,0,200,201,5,37,0,0,201,9,1,0,0,0,7,78,96,117,175,
-        182,190,198
+        1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,1,183,8,1,1,1,
+        1,1,1,1,5,1,188,8,1,10,1,12,1,191,9,1,1,2,1,2,1,2,5,2,196,8,2,10,
+        2,12,2,199,9,2,1,3,1,3,1,3,1,3,1,4,3,4,206,8,4,1,4,1,4,1,4,0,1,2,
+        5,0,2,4,6,8,0,1,1,0,4,12,236,0,10,1,0,0,0,2,182,1,0,0,0,4,192,1,
+        0,0,0,6,200,1,0,0,0,8,205,1,0,0,0,10,11,3,2,1,0,11,12,5,0,0,1,12,
+        1,1,0,0,0,13,14,6,1,-1,0,14,15,5,14,0,0,15,16,5,1,0,0,16,17,3,2,
+        1,0,17,18,5,2,0,0,18,19,3,2,1,0,19,20,5,2,0,0,20,21,3,2,1,0,21,22,
+        5,3,0,0,22,183,1,0,0,0,23,24,5,15,0,0,24,25,5,1,0,0,25,26,3,6,3,
+        0,26,27,5,3,0,0,27,183,1,0,0,0,28,29,5,16,0,0,29,30,5,1,0,0,30,31,
+        3,4,2,0,31,32,5,3,0,0,32,183,1,0,0,0,33,34,5,17,0,0,34,35,5,1,0,
+        0,35,36,3,4,2,0,36,37,5,3,0,0,37,183,1,0,0,0,38,39,5,18,0,0,39,40,
+        5,1,0,0,40,41,3,6,3,0,41,42,5,2,0,0,42,43,3,2,1,0,43,44,5,3,0,0,
+        44,183,1,0,0,0,45,46,5,19,0,0,46,47,5,1,0,0,47,48,3,2,1,0,48,49,
+        5,2,0,0,49,50,3,2,1,0,50,51,5,3,0,0,51,183,1,0,0,0,52,53,5,20,0,
+        0,53,54,5,1,0,0,54,55,3,6,3,0,55,56,5,3,0,0,56,183,1,0,0,0,57,58,
+        5,21,0,0,58,59,5,1,0,0,59,60,3,2,1,0,60,61,5,2,0,0,61,62,3,2,1,0,
+        62,63,5,3,0,0,63,183,1,0,0,0,64,65,5,22,0,0,65,66,5,1,0,0,66,67,
+        3,6,3,0,67,68,5,3,0,0,68,183,1,0,0,0,69,70,5,23,0,0,70,71,5,1,0,
+        0,71,72,3,2,1,0,72,73,5,2,0,0,73,74,3,6,3,0,74,75,5,2,0,0,75,76,
+        3,2,1,0,76,78,5,2,0,0,77,79,3,2,1,0,78,77,1,0,0,0,78,79,1,0,0,0,
+        79,80,1,0,0,0,80,81,5,3,0,0,81,183,1,0,0,0,82,83,5,24,0,0,83,84,
+        5,1,0,0,84,85,3,2,1,0,85,86,5,2,0,0,86,87,3,2,1,0,87,88,5,3,0,0,
+        88,183,1,0,0,0,89,90,5,25,0,0,90,91,5,1,0,0,91,92,3,6,3,0,92,93,
+        5,2,0,0,93,94,3,2,1,0,94,96,5,2,0,0,95,97,3,2,1,0,96,95,1,0,0,0,
+        96,97,1,0,0,0,97,98,1,0,0,0,98,99,5,3,0,0,99,183,1,0,0,0,100,101,
+        5,26,0,0,101,102,5,1,0,0,102,103,3,2,1,0,103,104,5,3,0,0,104,183,
+        1,0,0,0,105,106,5,27,0,0,106,107,5,1,0,0,107,108,3,6,3,0,108,109,
+        5,2,0,0,109,117,3,2,1,0,110,111,5,2,0,0,111,112,3,6,3,0,112,113,
+        5,2,0,0,113,114,3,2,1,0,114,116,1,0,0,0,115,110,1,0,0,0,116,119,
+        1,0,0,0,117,115,1,0,0,0,117,118,1,0,0,0,118,120,1,0,0,0,119,117,
+        1,0,0,0,120,121,5,3,0,0,121,183,1,0,0,0,122,123,5,28,0,0,123,124,
+        5,1,0,0,124,125,3,2,1,0,125,126,5,2,0,0,126,127,3,2,1,0,127,128,
+        5,3,0,0,128,183,1,0,0,0,129,130,5,29,0,0,130,131,5,1,0,0,131,132,
+        3,2,1,0,132,133,5,3,0,0,133,183,1,0,0,0,134,135,5,30,0,0,135,136,
+        5,1,0,0,136,137,3,6,3,0,137,138,5,3,0,0,138,183,1,0,0,0,139,140,
+        5,31,0,0,140,141,5,1,0,0,141,142,3,6,3,0,142,143,5,2,0,0,143,144,
+        3,2,1,0,144,145,5,3,0,0,145,183,1,0,0,0,146,147,5,32,0,0,147,148,
+        5,1,0,0,148,149,3,4,2,0,149,150,5,3,0,0,150,183,1,0,0,0,151,152,
+        5,33,0,0,152,153,5,1,0,0,153,154,3,2,1,0,154,155,5,3,0,0,155,183,
+        1,0,0,0,156,157,5,34,0,0,157,158,5,1,0,0,158,159,3,2,1,0,159,160,
+        5,2,0,0,160,161,3,2,1,0,161,162,5,3,0,0,162,183,1,0,0,0,163,164,
+        5,35,0,0,164,165,5,1,0,0,165,166,3,2,1,0,166,167,5,3,0,0,167,183,
+        1,0,0,0,168,183,3,8,4,0,169,183,5,39,0,0,170,183,5,40,0,0,171,172,
+        5,1,0,0,172,173,3,2,1,0,173,174,5,3,0,0,174,183,1,0,0,0,175,176,
+        5,36,0,0,176,177,5,1,0,0,177,178,3,2,1,0,178,179,5,2,0,0,179,180,
+        3,2,1,0,180,181,5,3,0,0,181,183,1,0,0,0,182,13,1,0,0,0,182,23,1,
+        0,0,0,182,28,1,0,0,0,182,33,1,0,0,0,182,38,1,0,0,0,182,45,1,0,0,
+        0,182,52,1,0,0,0,182,57,1,0,0,0,182,64,1,0,0,0,182,69,1,0,0,0,182,
+        82,1,0,0,0,182,89,1,0,0,0,182,100,1,0,0,0,182,105,1,0,0,0,182,122,
+        1,0,0,0,182,129,1,0,0,0,182,134,1,0,0,0,182,139,1,0,0,0,182,146,
+        1,0,0,0,182,151,1,0,0,0,182,156,1,0,0,0,182,163,1,0,0,0,182,168,
+        1,0,0,0,182,169,1,0,0,0,182,170,1,0,0,0,182,171,1,0,0,0,182,175,
+        1,0,0,0,183,189,1,0,0,0,184,185,10,3,0,0,185,186,7,0,0,0,186,188,
+        3,2,1,4,187,184,1,0,0,0,188,191,1,0,0,0,189,187,1,0,0,0,189,190,
+        1,0,0,0,190,3,1,0,0,0,191,189,1,0,0,0,192,197,3,2,1,0,193,194,5,
+        2,0,0,194,196,3,2,1,0,195,193,1,0,0,0,196,199,1,0,0,0,197,195,1,
+        0,0,0,197,198,1,0,0,0,198,5,1,0,0,0,199,197,1,0,0,0,200,201,3,8,
+        4,0,201,202,5,13,0,0,202,203,3,8,4,0,203,7,1,0,0,0,204,206,5,37,
+        0,0,205,204,1,0,0,0,205,206,1,0,0,0,206,207,1,0,0,0,207,208,5,38,
+        0,0,208,9,1,0,0,0,7,78,96,117,182,189,197,205
     ]
 
 class ExcelFormulaParser ( Parser ):
@@ -101,8 +103,8 @@ class ExcelFormulaParser ( Parser ):
                       "COUNTIF", "IFERROR", "ROWS", "FIND", "COUNT", "VLOOKUP", 
                       "ROUNDDOWN", "INDEX", "INDIRECT", "COUNTIFS", "EOMONTH", 
                       "NOT", "AVERAGE", "SUMIF", "CONCAT", "LEN", "ROUND", 
-                      "ISERROR", "SHEET_NAME", "CELL", "NUMBER", "STRING", 
-                      "IDENTIFIER", "WS" ]
+                      "ISERROR", "YEARFRAC", "SHEET_NAME", "CELL", "NUMBER", 
+                      "STRING", "IDENTIFIER", "WS" ]
 
     RULE_formula = 0
     RULE_expression = 1
@@ -148,12 +150,13 @@ class ExcelFormulaParser ( Parser ):
     LEN=33
     ROUND=34
     ISERROR=35
-    SHEET_NAME=36
-    CELL=37
-    NUMBER=38
-    STRING=39
-    IDENTIFIER=40
-    WS=41
+    YEARFRAC=36
+    SHEET_NAME=37
+    CELL=38
+    NUMBER=39
+    STRING=40
+    IDENTIFIER=41
+    WS=42
 
     def __init__(self, input:TokenStream, output:TextIO = sys.stdout):
         super().__init__(input, output)
@@ -310,6 +313,36 @@ class ExcelFormulaParser ( Parser ):
         def accept(self, visitor:ParseTreeVisitor):
             if hasattr( visitor, "visitIfExpr" ):
                 return visitor.visitIfExpr(self)
+            else:
+                return visitor.visitChildren(self)
+
+
+    class YearfracExprContext(ExpressionContext):
+
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a ExcelFormulaParser.ExpressionContext
+            super().__init__(parser)
+            self.copyFrom(ctx)
+
+        def YEARFRAC(self):
+            return self.getToken(ExcelFormulaParser.YEARFRAC, 0)
+        def expression(self, i:int=None):
+            if i is None:
+                return self.getTypedRuleContexts(ExcelFormulaParser.ExpressionContext)
+            else:
+                return self.getTypedRuleContext(ExcelFormulaParser.ExpressionContext,i)
+
+
+        def enterRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "enterYearfracExpr" ):
+                listener.enterYearfracExpr(self)
+
+        def exitRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "exitYearfracExpr" ):
+                listener.exitYearfracExpr(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitYearfracExpr" ):
+                return visitor.visitYearfracExpr(self)
             else:
                 return visitor.visitChildren(self)
 
@@ -1010,7 +1043,7 @@ class ExcelFormulaParser ( Parser ):
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 175
+            self.state = 182
             self._errHandler.sync(self)
             token = self._input.LA(1)
             if token in [14]:
@@ -1174,7 +1207,7 @@ class ExcelFormulaParser ( Parser ):
                 self.state = 78
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
-                if (((_la) & ~0x3f) == 0 and ((1 << _la) & 1099511611394) != 0):
+                if (((_la) & ~0x3f) == 0 and ((1 << _la) & 2199023239170) != 0):
                     self.state = 77
                     self.expression(0)
 
@@ -1218,7 +1251,7 @@ class ExcelFormulaParser ( Parser ):
                 self.state = 96
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
-                if (((_la) & ~0x3f) == 0 and ((1 << _la) & 1099511611394) != 0):
+                if (((_la) & ~0x3f) == 0 and ((1 << _la) & 2199023239170) != 0):
                     self.state = 95
                     self.expression(0)
 
@@ -1388,21 +1421,21 @@ class ExcelFormulaParser ( Parser ):
                 self.state = 166
                 self.match(ExcelFormulaParser.T__2)
                 pass
-            elif token in [36, 37]:
+            elif token in [37, 38]:
                 localctx = ExcelFormulaParser.CellExprContext(self, localctx)
                 self._ctx = localctx
                 _prevctx = localctx
                 self.state = 168
                 self.cellReference()
                 pass
-            elif token in [38]:
+            elif token in [39]:
                 localctx = ExcelFormulaParser.NumberExprContext(self, localctx)
                 self._ctx = localctx
                 _prevctx = localctx
                 self.state = 169
                 self.match(ExcelFormulaParser.NUMBER)
                 pass
-            elif token in [39]:
+            elif token in [40]:
                 localctx = ExcelFormulaParser.StringExprContext(self, localctx)
                 self._ctx = localctx
                 _prevctx = localctx
@@ -1420,11 +1453,28 @@ class ExcelFormulaParser ( Parser ):
                 self.state = 173
                 self.match(ExcelFormulaParser.T__2)
                 pass
+            elif token in [36]:
+                localctx = ExcelFormulaParser.YearfracExprContext(self, localctx)
+                self._ctx = localctx
+                _prevctx = localctx
+                self.state = 175
+                self.match(ExcelFormulaParser.YEARFRAC)
+                self.state = 176
+                self.match(ExcelFormulaParser.T__0)
+                self.state = 177
+                self.expression(0)
+                self.state = 178
+                self.match(ExcelFormulaParser.T__1)
+                self.state = 179
+                self.expression(0)
+                self.state = 180
+                self.match(ExcelFormulaParser.T__2)
+                pass
             else:
                 raise NoViableAltException(self)
 
             self._ctx.stop = self._input.LT(-1)
-            self.state = 182
+            self.state = 189
             self._errHandler.sync(self)
             _alt = self._interp.adaptivePredict(self._input,4,self._ctx)
             while _alt!=2 and _alt!=ATN.INVALID_ALT_NUMBER:
@@ -1434,11 +1484,11 @@ class ExcelFormulaParser ( Parser ):
                     _prevctx = localctx
                     localctx = ExcelFormulaParser.BinaryOpExprContext(self, ExcelFormulaParser.ExpressionContext(self, _parentctx, _parentState))
                     self.pushNewRecursionContext(localctx, _startState, self.RULE_expression)
-                    self.state = 177
-                    if not self.precpred(self._ctx, 2):
+                    self.state = 184
+                    if not self.precpred(self._ctx, 3):
                         from antlr4.error.Errors import FailedPredicateException
-                        raise FailedPredicateException(self, "self.precpred(self._ctx, 2)")
-                    self.state = 178
+                        raise FailedPredicateException(self, "self.precpred(self._ctx, 3)")
+                    self.state = 185
                     localctx.operator = self._input.LT(1)
                     _la = self._input.LA(1)
                     if not((((_la) & ~0x3f) == 0 and ((1 << _la) & 8176) != 0)):
@@ -1446,9 +1496,9 @@ class ExcelFormulaParser ( Parser ):
                     else:
                         self._errHandler.reportMatch(self)
                         self.consume()
-                    self.state = 179
-                    self.expression(3) 
-                self.state = 184
+                    self.state = 186
+                    self.expression(4) 
+                self.state = 191
                 self._errHandler.sync(self)
                 _alt = self._interp.adaptivePredict(self._input,4,self._ctx)
 
@@ -1502,17 +1552,17 @@ class ExcelFormulaParser ( Parser ):
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 185
+            self.state = 192
             self.expression(0)
-            self.state = 190
+            self.state = 197
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             while _la==2:
-                self.state = 186
+                self.state = 193
                 self.match(ExcelFormulaParser.T__1)
-                self.state = 187
+                self.state = 194
                 self.expression(0)
-                self.state = 192
+                self.state = 199
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
 
@@ -1565,11 +1615,11 @@ class ExcelFormulaParser ( Parser ):
         self.enterRule(localctx, 6, self.RULE_range)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 193
+            self.state = 200
             self.cellReference()
-            self.state = 194
+            self.state = 201
             self.match(ExcelFormulaParser.T__12)
-            self.state = 195
+            self.state = 202
             self.cellReference()
         except RecognitionException as re:
             localctx.exception = re
@@ -1620,15 +1670,15 @@ class ExcelFormulaParser ( Parser ):
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 198
+            self.state = 205
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            if _la==36:
-                self.state = 197
+            if _la==37:
+                self.state = 204
                 self.match(ExcelFormulaParser.SHEET_NAME)
 
 
-            self.state = 200
+            self.state = 207
             self.match(ExcelFormulaParser.CELL)
         except RecognitionException as re:
             localctx.exception = re
@@ -1652,7 +1702,7 @@ class ExcelFormulaParser ( Parser ):
 
     def expression_sempred(self, localctx:ExpressionContext, predIndex:int):
             if predIndex == 0:
-                return self.precpred(self._ctx, 2)
+                return self.precpred(self._ctx, 3)
          
 
 

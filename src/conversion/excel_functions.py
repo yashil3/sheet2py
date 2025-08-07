@@ -265,4 +265,8 @@ def evaluate_criteria(value, criteria):
     elif criteria.startswith('='):
         return value == criteria[1:]
     else:
-        return value == criteria
+        # For string comparisons, make them case-insensitive like Excel
+        if isinstance(value, str) and isinstance(criteria, str):
+            return value.lower() == criteria.lower()
+        else:
+            return value == criteria

@@ -44,6 +44,15 @@ class ExcelFormulaListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by ExcelFormulaParser#YearfracExpr.
+    def enterYearfracExpr(self, ctx:ExcelFormulaParser.YearfracExprContext):
+        pass
+
+    # Exit a parse tree produced by ExcelFormulaParser#YearfracExpr.
+    def exitYearfracExpr(self, ctx:ExcelFormulaParser.YearfracExprContext):
+        pass
+
+
     # Enter a parse tree produced by ExcelFormulaParser#EoMonthExpr.
     def enterEoMonthExpr(self, ctx:ExcelFormulaParser.EoMonthExprContext):
         pass
@@ -285,3 +294,7 @@ class ExcelFormulaListener(ParseTreeListener):
     # Exit a parse tree produced by ExcelFormulaParser#cellReference.
     def exitCellReference(self, ctx:ExcelFormulaParser.CellReferenceContext):
         pass
+
+
+
+del ExcelFormulaParser

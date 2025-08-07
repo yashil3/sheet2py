@@ -205,3 +205,8 @@ class FormulaConverterVisitor(ExcelFormulaVisitor):
         if expr.startswith('(') and expr.endswith(')'):
             expr = expr[1:-1]
         return f"is_error(lambda: ({expr}))"
+    
+    def visitYearfracExpr(self, ctx:ExcelFormulaParser.YearfracExprContext):
+        start_date = self.visit(ctx.expression(0))
+        end_date = self.visit(ctx.expression(1))
+        return f"yearfrac({start_date}, {end_date})"

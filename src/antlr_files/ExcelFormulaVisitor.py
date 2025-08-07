@@ -29,6 +29,11 @@ class ExcelFormulaVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by ExcelFormulaParser#YearfracExpr.
+    def visitYearfracExpr(self, ctx:ExcelFormulaParser.YearfracExprContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by ExcelFormulaParser#EoMonthExpr.
     def visitEoMonthExpr(self, ctx:ExcelFormulaParser.EoMonthExprContext):
         return self.visitChildren(ctx)

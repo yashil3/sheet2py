@@ -30,6 +30,7 @@ expression
     | STRING                                                    # StringExpr
     | expression operator=('*'|'/'|'+'|'-'|'>'|'<'|'>='|'<='|'=') expression  # BinaryOpExpr
     | '(' expression ')'                                        # ParenthesizedExpr
+    | YEARFRAC '(' expression ',' expression ')'                # YearfracExpr
     ;
 
 expressionList : expression (',' expression)*;
@@ -61,6 +62,7 @@ CONCAT  : [Cc][Oo][Nn][Cc][Aa][Tt];
 LEN     : [Ll][Ee][Nn];
 ROUND   : [Rr][Oo][Uu][Nn][Dd];
 ISERROR : [Ii][Ss][Ee][Rr][Rr][Oo][Rr];
+YEARFRAC : [Yy][Ee][Aa][Rr][Ff][Rr][Aa][Cc];
 SHEET_NAME: IDENTIFIER '!';
 CELL    : [A-Z]+[0-9]+;
 NUMBER  : [0-9]+('.'[0-9]+)?;
