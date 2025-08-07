@@ -44,7 +44,7 @@ def rule_formulas_e2(data, shared_data):
     Original Excel formula: =IFERROR(IF(FIND(Source!G2,Source!B14)>0,1, 0),0)
     Cell: Formulas!E2
     Rule type: condition_check
-    Dependencies: Source!B14, Source!G2
+    Dependencies: Source!G2, Source!B14
     """
     try:
         result = safe_execute(lambda: ((1 if (find_text(get_cell(data, 'Source', 'G2'), get_cell(data, 'Source', 'B14')) > 0) else 0)), 0)
@@ -74,7 +74,7 @@ def rule_formulas_e3(data, shared_data):
     Original Excel formula: =IF(OR(Source!G3=Source!B20,Source!H3=Source!B20,Source!I3=Source!B20),1,0)
     Cell: Formulas!E3
     Rule type: general_calculation
-    Dependencies: Source!B20, Source!I3, Source!G3, Source!H3
+    Dependencies: Source!I3, Source!H3, Source!B20, Source!G3
     """
     try:
         result = ((1 if ((get_cell(data, 'Source', 'G3') == get_cell(data, 'Source', 'B20')) or (get_cell(data, 'Source', 'H3') == get_cell(data, 'Source', 'B20')) or (get_cell(data, 'Source', 'I3') == get_cell(data, 'Source', 'B20'))) else 0))
@@ -119,7 +119,7 @@ def rule_formulas_c5(data, shared_data):
     Original Excel formula: =$B5/SUM($B$2:$B$9)
     Cell: Formulas!C5
     Rule type: weight_calculation
-    Dependencies: Formulas!$B5, Formulas!B2, Formulas!B3, Formulas!B4, Formulas!B5, Formulas!B6, Formulas!B7, Formulas!B8, Formulas!B9
+    Dependencies: Formulas!B2, Formulas!B3, Formulas!B4, Formulas!B5, Formulas!B6, Formulas!B7, Formulas!B8, Formulas!B9, Formulas!$B5
     """
     try:
         result = (get_cell(data, 'Formulas', '$B5') / sum_range(data, 'Formulas', '$B$2', '$B$9'))
@@ -164,7 +164,7 @@ def rule_formulas_e6(data, shared_data):
     Original Excel formula: =(COUNTIF(Source!B8:B10, Source!G6)+COUNTIF(Source!B8:B10,Source!H6)+COUNTIF(Source!B8:B10,Source!I6)+COUNTIF(Source!B8:B10,Source!J6))/4
     Cell: Formulas!E6
     Rule type: count_matching
-    Dependencies: Source!I6, Source!H6, Source!J6, Source!G6, Source!B8, Source!B9, Source!B10
+    Dependencies: Source!B8, Source!B9, Source!B10, Source!J6, Source!H6, Source!G6, Source!I6
     """
     try:
         result = (((((count_if(data, 'Source', 'B8', 'B10', get_cell(data, 'Source', 'G6')) + count_if(data, 'Source', 'B8', 'B10', get_cell(data, 'Source', 'H6'))) + count_if(data, 'Source', 'B8', 'B10', get_cell(data, 'Source', 'I6'))) + count_if(data, 'Source', 'B8', 'B10', get_cell(data, 'Source', 'J6')))) / 4)
@@ -254,7 +254,7 @@ def rule_formulas_e9(data, shared_data):
     Original Excel formula: =(IF(AND(Source!G9="Auto-dimming Mirrors",Source!B16="YES"),1,0) + IF(AND(Source!G10="Heated seats",Source!B15="YES"),1,0) + IF(AND(Source!G11="Leather Seats",Source!B19="YES"),1,0) + IF(AND(Source!G12="Auto Wipers",Source!B17="YES"),1,0))/ROWS(Source!G9:G12)
     Cell: Formulas!E9
     Rule type: scoring_rule
-    Dependencies: Source!G12, Source!B15, Source!G11, Source!B17, Source!G9, Source!B19, Source!G10, Source!B16
+    Dependencies: Source!G9, Source!G10, Source!G12, Source!B19, Source!B16, Source!G11, Source!B15, Source!B17
     """
     try:
         result = ((((((1 if ((get_cell(data, 'Source', 'G9') == "Auto-dimming Mirrors") and (get_cell(data, 'Source', 'B16') == "YES")) else 0) + (1 if ((get_cell(data, 'Source', 'G10') == "Heated seats") and (get_cell(data, 'Source', 'B15') == "YES")) else 0)) + (1 if ((get_cell(data, 'Source', 'G11') == "Leather Seats") and (get_cell(data, 'Source', 'B19') == "YES")) else 0)) + (1 if ((get_cell(data, 'Source', 'G12') == "Auto Wipers") and (get_cell(data, 'Source', 'B17') == "YES")) else 0))) / rows_count('G9', 'G12'))
@@ -359,7 +359,7 @@ def rule_formulas_e10(data, shared_data):
     Original Excel formula: =E2*C2+E3*C3+E4*C4+E5*C5+E6*C6+E7*C7+E8*C8+E9*C9
     Cell: Formulas!E10
     Rule type: general_calculation
-    Dependencies: Formulas!E6, Formulas!E3, Formulas!C9, Formulas!E7, Formulas!C5, Formulas!E8, Formulas!C8, Formulas!C2, Formulas!E9, Formulas!C6, Formulas!C3, Formulas!E5, Formulas!E4, Formulas!E2, Formulas!C7, Formulas!C4
+    Dependencies: Formulas!E5, Formulas!E2, Formulas!E8, Formulas!E4, Formulas!C6, Formulas!C2, Formulas!C8, Formulas!C9, Formulas!E6, Formulas!C3, Formulas!C7, Formulas!E9, Formulas!E7, Formulas!C5, Formulas!C4, Formulas!E3
     """
     try:
         result = (((((((((((((((get_cell(data, 'Formulas', 'E2') * get_cell(data, 'Formulas', 'C2')) + get_cell(data, 'Formulas', 'E3')) * get_cell(data, 'Formulas', 'C3')) + get_cell(data, 'Formulas', 'E4')) * get_cell(data, 'Formulas', 'C4')) + get_cell(data, 'Formulas', 'E5')) * get_cell(data, 'Formulas', 'C5')) + get_cell(data, 'Formulas', 'E6')) * get_cell(data, 'Formulas', 'C6')) + get_cell(data, 'Formulas', 'E7')) * get_cell(data, 'Formulas', 'C7')) + get_cell(data, 'Formulas', 'E8')) * get_cell(data, 'Formulas', 'C8')) + get_cell(data, 'Formulas', 'E9')) * get_cell(data, 'Formulas', 'C9'))

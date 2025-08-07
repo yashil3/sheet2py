@@ -252,10 +252,23 @@ def eomonth(start_date, months):
 def yearfrac(start_date, end_date):
     """YEARFRAC implementation"""
     try:
-        start_date = datetime.strptime(start_date, "%Y-%m-%d")
-        end_date = datetime.strptime(end_date, "%Y-%m-%d")
+        # Handle both string dates and datetime objects
+        if isinstance(start_date, str):
+            start_date = datetime.strptime(start_date, "%Y-%m-%d")
+        elif hasattr(start_date, 'strftime'):  # datetime object
+            start_date = start_date
+        else:
+            return "#VALUE!"
+            
+        if isinstance(end_date, str):
+            end_date = datetime.strptime(end_date, "%Y-%m-%d")
+        elif hasattr(end_date, 'strftime'):  # datetime object
+            end_date = end_date
+        else:
+            return "#VALUE!"
+            
         delta_days = (end_date - start_date).days
-        year_fraction = delta_days / 365.0
+        year_fraction = abs(delta_days / 365.0)
         return year_fraction
     except (ValueError, TypeError):
         return "#VALUE!"
