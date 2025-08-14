@@ -14,6 +14,7 @@ import networkx as nx
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s')
 
+
 @dataclass
 class ConvertedFormula:
     """Represents a converted formula with metadata."""
@@ -24,6 +25,8 @@ class ConvertedFormula:
     dependencies: nx.DiGraph
     description: str
     rule_type: str
+    input_keys: List[str]
+
 
 class ExcelToPythonConverter:
     """Fixed converter for Excel formulas to Python expressions."""
@@ -128,6 +131,8 @@ class ExcelToPythonConverter:
         rule_type = self.classify_formula(formula)
         description = self.generate_description(formula, rule_type)
 
+        input_keys = [f"{s}:{k}" for (s, k) in sorted(visitor.input_keys)]
+
         return ConvertedFormula(
             original_formula=original,
             python_expression=python_expression,
@@ -135,7 +140,8 @@ class ExcelToPythonConverter:
             sheet=sheet,
             dependencies=deps_graph,
             description=description,
-            rule_type=rule_type
+            rule_type=rule_type,
+            input_keys=input_keys,
         )
 
     def generate_python_function(self, converted: ConvertedFormula) -> str:
@@ -145,6 +151,7 @@ class ExcelToPythonConverter:
         node_id = f"{converted.sheet}!{converted.cell_reference}"
         deps = list(converted.dependencies.predecessors(node_id))
         deps_str = ", ".join(deps)
+        inputs_str = ", ".join(converted.input_keys)
 
         function_code = f'''def {func_name}(data, shared_data):
     """
@@ -153,6 +160,7 @@ class ExcelToPythonConverter:
     Cell: {converted.sheet}!{converted.cell_reference}
     Rule type: {converted.rule_type}
     Dependencies: {deps_str}
+    Inputs: {inputs_str}
     """
     try:
         result = {converted.python_expression}
@@ -163,10 +171,12 @@ class ExcelToPythonConverter:
 
         return function_code
 
+
 def build_dependency_graph(converted_formulas: List[ConvertedFormula]) -> nx.DiGraph:
     """Builds a dependency graph from a list of converted formulas using networkx."""
     all_graphs = [f.dependencies for f in converted_formulas]
     return nx.compose_all(all_graphs)
+
 
 def topological_sort(graph: nx.DiGraph) -> List[str]:
     """Topologically sorts a dependency graph using networkx."""

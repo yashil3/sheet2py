@@ -1,4 +1,3 @@
-
 import logging
 from src.conversion.excel_functions import * 
 
@@ -17,12 +16,17 @@ def evaluate_rules(rules, data):
     eval_globals = {
         'data': data,
         'get_cell': get_cell,
+        'get_value': get_value,
         'sum_range': sum_range,
         'count_range': count_range,
         'average_range': average_range,
         'count_if_range': count_if_range,
         'count_if': count_if,
         'sum_if': sum_if,
+        'sum_keys': sum_keys,
+        'average_keys': average_keys,
+        'count_if_keys': count_if_keys,
+        'sum_if_keys': sum_if_keys,
         'safe_execute': safe_execute,
         'is_error': is_error,
         'concat': concat,

@@ -8,12 +8,65 @@ import re
 from datetime import datetime, timedelta
 from calendar import monthrange
 
+
 def get_cell(data, sheet, cell):
     """Get cell value from data structure"""
     try:
         return data[sheet][cell]
     except KeyError:
         return 0
+
+
+def get_value(data, sheet, key, default=0):
+    """Get a value by semantic key for a sheet.
+    Expects data[sheet]['by_key'] to be a dict of key->value.
+    Falls back to default if not present.
+    """
+    try:
+        by_key = data.get(sheet, {}).get('by_key', {})
+        if key in by_key:
+            return by_key[key]
+    except Exception:
+        pass
+    return default
+
+
+# Key-based helpers
+
+def _iter_key_values(data, sheet, keys):
+    by_key = data.get(sheet, {}).get('by_key', {})
+    for k in keys:
+        yield by_key.get(k)
+
+
+def sum_keys(data, sheet, keys):
+    total = 0
+    for v in _iter_key_values(data, sheet, keys):
+        if isinstance(v, (int, float)):
+            total += v
+    return total
+
+
+def average_keys(data, sheet, keys):
+    values = [v for v in _iter_key_values(data, sheet, keys) if isinstance(v, (int, float))]
+    return sum(values) / len(values) if values else 0
+
+
+def count_if_keys(data, sheet, keys, criteria):
+    cnt = 0
+    for v in _iter_key_values(data, sheet, keys):
+        if evaluate_criteria(v, criteria):
+            cnt += 1
+    return cnt
+
+
+def sum_if_keys(data, sheet, keys, criteria):
+    total = 0
+    for v in _iter_key_values(data, sheet, keys):
+        if evaluate_criteria(v, criteria) and isinstance(v, (int, float)):
+            total += v
+    return total
+
 
 def sum_range(data, sheet, start_cell, end_cell):
     """Sum a range of cells"""
@@ -32,6 +85,7 @@ def sum_range(data, sheet, start_cell, end_cell):
                 continue
     return sum(values)
 
+
 def count_range(data, sheet, start_cell, end_cell):
     """Count non-empty cells in a range"""
     count = 0
@@ -48,6 +102,7 @@ def count_range(data, sheet, start_cell, end_cell):
             except KeyError:
                 continue
     return count
+
 
 def average_range(data, sheet, start_cell, end_cell):
     """Calculate average of a range"""
@@ -66,6 +121,7 @@ def average_range(data, sheet, start_cell, end_cell):
                 continue
     return sum(values) / len(values) if values else 0
 
+
 def count_if_range(data, sheet, start_cell, end_cell, criteria):
     """Count cells meeting criteria"""
     count = 0
@@ -83,9 +139,11 @@ def count_if_range(data, sheet, start_cell, end_cell, criteria):
                 continue
     return count
 
+
 def count_if(data, sheet, start_cell, end_cell, criteria):
     """Alias for count_if_range for backward compatibility"""
     return count_if_range(data, sheet, start_cell, end_cell, criteria)
+
 
 def sum_if(data, sheet, start_cell, end_cell, criteria):
     """Sum cells meeting criteria"""
@@ -104,12 +162,14 @@ def sum_if(data, sheet, start_cell, end_cell, criteria):
                 continue
     return total
 
+
 def safe_execute(func, error_value):
     """Execute function safely, return error_value on exception"""
     try:
         return func()
     except:
         return error_value
+
 
 def is_error(func):
     """Check if function execution results in error"""
@@ -119,14 +179,17 @@ def is_error(func):
     except:
         return True
 
+
 def concat(*args):
     """Concatenate strings"""
     return ''.join(str(arg) for arg in args)
+
 
 def round_down(value, digits):
     """Round down to specified digits"""
     multiplier = 10 ** digits
     return math.floor(value * multiplier) / multiplier
+
 
 def rows_count(start_cell, end_cell):
     """Count rows in range"""
@@ -134,12 +197,14 @@ def rows_count(start_cell, end_cell):
     _, end_row = parse_cell_ref(end_cell)
     return end_row - start_row + 1
 
+
 def find_text(search_text, search_in):
     """Find text position (1-based)"""
     try:
         return str(search_in).find(str(search_text)) + 1
     except:
         return 0
+
 
 def right_text(text, num_chars):
     """Extract rightmost characters from text (Excel RIGHT function)"""
@@ -153,6 +218,7 @@ def right_text(text, num_chars):
         return ""
 
 # Complex functions that should be identified for user replacement
+
 def vlookup(lookup_value, data, sheet, range_text, col_index, exact_match=True):
     """VLOOKUP implementation"""
     start_cell, end_cell = range_text.split(':')
@@ -176,6 +242,7 @@ def vlookup(lookup_value, data, sheet, range_text, col_index, exact_match=True):
     
     return "#N/A"
 
+
 def index(data, sheet, range_text, row, col=1):
     """INDEX implementation"""
     start_cell, end_cell = range_text.split(':')
@@ -191,6 +258,7 @@ def index(data, sheet, range_text, row, col=1):
     except KeyError:
         return "#REF!"
 
+
 def indirect(data, ref):
     """INDIRECT implementation"""
     try:
@@ -202,6 +270,7 @@ def indirect(data, ref):
             return get_cell(data, "Formulas", ref)
         except KeyError:
             return "#REF!"
+
 
 def countifs(data, ranges_criteria):
     """COUNTIFS implementation"""
@@ -232,6 +301,7 @@ def countifs(data, ranges_criteria):
             
     return count
 
+
 def eomonth(start_date, months):
     """EOMONTH implementation"""
     try:
@@ -249,6 +319,7 @@ def eomonth(start_date, months):
     except (ValueError, TypeError):
         return "#VALUE!"
     
+
 def yearfrac(start_date, end_date):
     """YEARFRAC implementation"""
     try:
@@ -274,6 +345,7 @@ def yearfrac(start_date, end_date):
         return "#VALUE!"
 
 # Helper functions
+
 def parse_cell_ref(cell_ref):
     """Parse cell reference like 'A1' into column number and row number"""
     match = re.match(r'([A-Z]+)(\d+)', cell_ref)
@@ -284,6 +356,7 @@ def parse_cell_ref(cell_ref):
             col_num = col_num * 26 + (ord(char) - ord('A') + 1)
         return col_num, int(row_str)
     return 1, 1
+
 
 def evaluate_criteria(value, criteria):
     """Evaluate criteria string like '>10' against value"""

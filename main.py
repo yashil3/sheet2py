@@ -11,6 +11,7 @@ from src.utils.scrape import extract_data_and_formulas_from_excel
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s')
 
+
 def main():
     """Main conversion function."""
     start_time = time.time()
@@ -21,6 +22,9 @@ def main():
 
     all_formulas = []
     all_data = {}
+    # For semantic mapping
+    sheet_cell_to_key = {}
+
     for filename in os.listdir(input_dir):
         if filename.endswith(('.xlsx', '.xlsm')):
             file_path = os.path.join(input_dir, filename)
@@ -33,10 +37,24 @@ def main():
                         "cell": formula_data["cell"],
                         "sheet": sheet_name
                     })
-                all_data[sheet_name] = sheet_data["data"]
+                # Build normalized data structure
+                cell_values = sheet_data.get("data", {})
+                key_values = sheet_data.get("key_values", {})
+                all_data.setdefault(sheet_name, {})
+                # Put flat cell values at top-level for backward compatibility
+                all_data[sheet_name].update(cell_values)
+                # Also attach by_key mapping used by get_value
+                all_data[sheet_name]['by_key'] = key_values
+
+                # Build cell->key map for this sheet
+                sheet_cell_to_key.setdefault(sheet_name, {})
+                sheet_cell_to_key[sheet_name].update(sheet_data.get("cell_to_key", {}))
 
     converter = ExcelToPythonConverter({})
-    shared_data = {}
+    # Provide shared mappings to the visitor
+    shared_data = {
+        'cell_to_key_map': sheet_cell_to_key,
+    }
     converted_formulas = []
 
     with tqdm(total=len(all_formulas), desc="Converting Formulas") as pbar:
@@ -87,7 +105,8 @@ def main():
                 "description": conv.description,
                 "original_formula": conv.original_formula,
                 "python_expression": conv.python_expression,
-                "dependencies": deps
+                "dependencies": deps,
+                "inputs": conv.input_keys,
             })
 
         with open(os.path.join(output_dir, "conversion_summary.json"), 'w') as f:
@@ -107,6 +126,7 @@ def main():
 
     end_time = time.time()
     print(f"Total execution time: {end_time - start_time:.2f} seconds")
+
 
 if __name__ == "__main__":
     main()

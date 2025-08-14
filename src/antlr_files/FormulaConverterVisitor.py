@@ -1,12 +1,15 @@
 from src.antlr_files.ExcelFormulaVisitor import ExcelFormulaVisitor
 from src.antlr_files.ExcelFormulaParser import ExcelFormulaParser
 
+
 class FormulaConverterVisitor(ExcelFormulaVisitor):
     def __init__(self, data, shared_data, sheet_name):
         self.data = data
         self.shared_data = shared_data
         self.dependencies = set()
         self.sheet_name = sheet_name
+        # Track which semantic keys are used by the formula
+        self.input_keys = set()
 
     def _extract_sheet_and_cells(self, text):
         """Helper method to extract sheet name and cells from range text, handling quoted sheet names."""
@@ -18,6 +21,62 @@ class FormulaConverterVisitor(ExcelFormulaVisitor):
         else:
             sheet, cells = self.sheet_name, text
         return sheet, cells
+
+    def _maybe_key_lookup(self, sheet, cell_ref):
+        """If a semantic key exists for this cell, return get_value expression; else None."""
+        try:
+            cell_to_key_map = self.shared_data.get('cell_to_key_map', {})
+            key = cell_to_key_map.get(sheet, {}).get(cell_ref)
+            if key:
+                self.input_keys.add((sheet, key))
+                # Use get_value for semantic access
+                return f"get_value(data, '{sheet}', {repr(key)})"
+        except Exception:
+            pass
+        return None
+
+    # --- Helpers for ranges -> keys ---
+    def _col_to_num(self, col):
+        n = 0
+        for c in col:
+            if 'A' <= c <= 'Z':
+                n = n * 26 + (ord(c) - ord('A') + 1)
+            elif 'a' <= c <= 'z':
+                n = n * 26 + (ord(c) - ord('a') + 1)
+        return n
+
+    def _num_to_col(self, num):
+        s = ''
+        while num:
+            num, rem = divmod(num - 1, 26)
+            s = chr(ord('A') + rem) + s
+        return s
+
+    def _parse_cell(self, ref):
+        letters = ''.join([ch for ch in ref if ch.isalpha()])
+        digits = ''.join([ch for ch in ref if ch.isdigit()])
+        return letters, int(digits)
+
+    def _expand_range_cells(self, start, end):
+        sc, sr = self._parse_cell(start)
+        ec, er = self._parse_cell(end)
+        scn, ecn = self._col_to_num(sc), self._col_to_num(ec)
+        for r in range(sr, er + 1):
+            for cn in range(scn, ecn + 1):
+                yield f"{self._num_to_col(cn)}{r}"
+
+    def _keys_for_range(self, sheet, start, end):
+        cell_to_key_map = self.shared_data.get('cell_to_key_map', {}).get(sheet, {})
+        cells = list(self._expand_range_cells(start, end))
+        keys = []
+        for c in cells:
+            k = cell_to_key_map.get(c)
+            if k:
+                keys.append(k)
+            else:
+                # If any cell lacks a key, we consider this not a pure key-based range
+                return None
+        return keys if keys else None
 
     def visitFormula(self, ctx:ExcelFormulaParser.FormulaContext):
         return self.visit(ctx.expression())
@@ -42,6 +101,12 @@ class FormulaConverterVisitor(ExcelFormulaVisitor):
         sheet, cells = self._extract_sheet_and_cells(text)
         start, end = cells.split(':')
         self.dependencies.add(f"{sheet}!{start}:{end}")
+        keys = self._keys_for_range(sheet, start, end)
+        if keys:
+            # Track all semantic keys used
+            for k in keys:
+                self.input_keys.add((sheet, k))
+            return f"sum_keys(data, '{sheet}', {repr(keys)})"
         return f"sum_range(data, '{sheet}', '{start}', '{end}')"
 
     def visitOrExpr(self, ctx:ExcelFormulaParser.OrExprContext):
@@ -58,6 +123,11 @@ class FormulaConverterVisitor(ExcelFormulaVisitor):
         start, end = cells.split(':')
         self.dependencies.add(f"{sheet}!{start}:{end}")
         criteria = self.visit(ctx.expression())
+        keys = self._keys_for_range(sheet, start, end)
+        if keys:
+            for k in keys:
+                self.input_keys.add((sheet, k))
+            return f"count_if_keys(data, '{sheet}', {repr(keys)}, {criteria})"
         return f"count_if(data, '{sheet}', '{start}', '{end}', {criteria})"
 
     def visitIfErrorExpr(self, ctx:ExcelFormulaParser.IfErrorExprContext):
@@ -81,6 +151,10 @@ class FormulaConverterVisitor(ExcelFormulaVisitor):
         text = ctx.getText()
         sheet, cell = self._extract_sheet_and_cells(text)
         self.dependencies.add(f"{sheet}!{cell}")
+        # Prefer key-based lookup when available
+        key_lookup = self._maybe_key_lookup(sheet, cell)
+        if key_lookup:
+            return key_lookup
         return f"get_cell(data, '{sheet}', '{cell}')"
 
     def visitNumberExpr(self, ctx:ExcelFormulaParser.NumberExprContext):
@@ -163,6 +237,11 @@ class FormulaConverterVisitor(ExcelFormulaVisitor):
         text = ctx.range_().getText()
         sheet, cells = self._extract_sheet_and_cells(text)
         start, end = cells.split(':')
+        keys = self._keys_for_range(sheet, start, end)
+        if keys:
+            for k in keys:
+                self.input_keys.add((sheet, k))
+            return f"average_keys(data, '{sheet}', {repr(keys)})"
         return f"average_range(data, '{sheet}', '{start}', '{end}')"
 
     def visitSumIfExpr(self, ctx:ExcelFormulaParser.SumIfExprContext):
@@ -170,6 +249,11 @@ class FormulaConverterVisitor(ExcelFormulaVisitor):
         sheet, cells = self._extract_sheet_and_cells(text)
         start, end = cells.split(':')
         criteria = self.visit(ctx.expression())
+        keys = self._keys_for_range(sheet, start, end)
+        if keys:
+            for k in keys:
+                self.input_keys.add((sheet, k))
+            return f"sum_if_keys(data, '{sheet}', {repr(keys)}, {criteria})"
         return f"sum_if(data, '{sheet}', '{start}', '{end}', {criteria})"
 
     def visitConcatExpr(self, ctx:ExcelFormulaParser.ConcatExprContext):
