@@ -68,6 +68,29 @@ def sum_if_keys(data, sheet, keys, criteria):
     return total
 
 
+def countifs_keys(data, sheet, keys_lists, criteria_list):
+    """COUNTIFS over key-mapped ranges.
+    - keys_lists: list of lists of keys (one list per criteria range), all aligned order-wise
+    - criteria_list: list of criteria expressions corresponding to keys_lists
+    We evaluate each "row" (i.e., same position across lists) and count when all criteria match.
+    """
+    if not keys_lists or not criteria_list:
+        return 0
+    # Ensure all lists have comparable length; use the shortest to avoid IndexErrors
+    length = min(len(lst) for lst in keys_lists)
+    count = 0
+    for i in range(length):
+        all_match = True
+        for lst, crit in zip(keys_lists, criteria_list):
+            v = get_value(data, sheet, lst[i])
+            if not evaluate_criteria(v, crit):
+                all_match = False
+                break
+        if all_match:
+            count += 1
+    return count
+
+
 def sum_range(data, sheet, start_cell, end_cell):
     """Sum a range of cells"""
     values = []
@@ -348,6 +371,7 @@ def yearfrac(start_date, end_date):
 
 def parse_cell_ref(cell_ref):
     """Parse cell reference like 'A1' into column number and row number"""
+    cell_ref = cell_ref.replace('$', '')
     match = re.match(r'([A-Z]+)(\d+)', cell_ref)
     if match:
         col_str, row_str = match.groups()
@@ -377,3 +401,11 @@ def evaluate_criteria(value, criteria):
             return value.lower() == criteria.lower()
         else:
             return value == criteria
+
+
+def rows_count_keys(keys):
+    """Count the number of semantic keys in a fully mapped range."""
+    try:
+        return len([k for k in keys if k is not None])
+    except Exception:
+        return 0

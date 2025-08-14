@@ -52,8 +52,10 @@ def main():
 
     converter = ExcelToPythonConverter({})
     # Provide shared mappings to the visitor
+    strict_flag = os.getenv('STRICT_NO_CELLS', '0') in ('1', 'true', 'True')
     shared_data = {
         'cell_to_key_map': sheet_cell_to_key,
+        'strict_no_cells': strict_flag,
     }
     converted_formulas = []
 
@@ -107,6 +109,7 @@ def main():
                 "python_expression": conv.python_expression,
                 "dependencies": deps,
                 "inputs": conv.input_keys,
+                "unresolved_inputs": conv.unresolved_inputs,
             })
 
         with open(os.path.join(output_dir, "conversion_summary.json"), 'w') as f:

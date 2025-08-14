@@ -10,9 +10,15 @@ class FormulaConverterVisitor(ExcelFormulaVisitor):
         self.sheet_name = sheet_name
         # Track which semantic keys are used by the formula
         self.input_keys = set()
+        # Track unresolved external references (cells/ranges that couldn't be mapped to keys)
+        self.unresolved = set()
+        # Strict mode: disallow external cell/range refs that aren't key-mapped
+        self.strict = bool(self.shared_data.get('strict_no_cells'))
 
     def _extract_sheet_and_cells(self, text):
-        """Helper method to extract sheet name and cells from range text, handling quoted sheet names."""
+        """Helper method to extract sheet name and cells from range text, handling quoted sheet names.
+        Also strips Excel absolute markers ($) from cell refs.
+        """
         if '!' in text:
             sheet, cells = text.split('!')
             # Handle quoted sheet names by removing quotes
@@ -20,6 +26,8 @@ class FormulaConverterVisitor(ExcelFormulaVisitor):
                 sheet = sheet[1:-1]
         else:
             sheet, cells = self.sheet_name, text
+        # Remove absolute markers
+        cells = cells.replace('$', '')
         return sheet, cells
 
     def _maybe_key_lookup(self, sheet, cell_ref):
@@ -107,6 +115,10 @@ class FormulaConverterVisitor(ExcelFormulaVisitor):
             for k in keys:
                 self.input_keys.add((sheet, k))
             return f"sum_keys(data, '{sheet}', {repr(keys)})"
+        # If external and not key-mappable
+        if sheet != self.sheet_name and self.strict:
+            self.unresolved.add(f"{sheet}!{start}:{end}")
+            raise ValueError(f"Unmapped external range {sheet}!{start}:{end} in strict mode")
         return f"sum_range(data, '{sheet}', '{start}', '{end}')"
 
     def visitOrExpr(self, ctx:ExcelFormulaParser.OrExprContext):
@@ -128,6 +140,9 @@ class FormulaConverterVisitor(ExcelFormulaVisitor):
             for k in keys:
                 self.input_keys.add((sheet, k))
             return f"count_if_keys(data, '{sheet}', {repr(keys)}, {criteria})"
+        if sheet != self.sheet_name and self.strict:
+            self.unresolved.add(f"{sheet}!{start}:{end}")
+            raise ValueError(f"Unmapped external range {sheet}!{start}:{end} in strict mode")
         return f"count_if(data, '{sheet}', '{start}', '{end}', {criteria})"
 
     def visitIfErrorExpr(self, ctx:ExcelFormulaParser.IfErrorExprContext):
@@ -140,6 +155,12 @@ class FormulaConverterVisitor(ExcelFormulaVisitor):
         sheet, cells = self._extract_sheet_and_cells(text)
         start, end = cells.split(':')
         self.dependencies.add(f"{sheet}!{start}:{end}")
+        # If the entire range maps to semantic keys, emit rows_count_keys
+        keys = self._keys_for_range(sheet, start, end)
+        if keys:
+            for k in keys:
+                self.input_keys.add((sheet, k))
+            return f"rows_count_keys({repr(keys)})"
         return f"rows_count('{start}', '{end}')"
 
     def visitFindExpr(self, ctx:ExcelFormulaParser.FindExprContext):
@@ -155,6 +176,10 @@ class FormulaConverterVisitor(ExcelFormulaVisitor):
         key_lookup = self._maybe_key_lookup(sheet, cell)
         if key_lookup:
             return key_lookup
+        # If external cell and strict, block
+        if sheet != self.sheet_name and self.strict:
+            self.unresolved.add(f"{sheet}!{cell}")
+            raise ValueError(f"Unmapped external cell {sheet}!{cell} in strict mode")
         return f"get_cell(data, '{sheet}', '{cell}')"
 
     def visitNumberExpr(self, ctx:ExcelFormulaParser.NumberExprContext):
@@ -179,7 +204,10 @@ class FormulaConverterVisitor(ExcelFormulaVisitor):
         return f"({self.visit(ctx.expression())})"
 
     def visitRange(self, ctx:ExcelFormulaParser.RangeContext):
-        return ctx.cellReference(0).getText() + ':' + ctx.cellReference(1).getText()
+        # Ensure returned range omits absolute markers
+        left = ctx.cellReference(0).getText().replace('$', '')
+        right = ctx.cellReference(1).getText().replace('$', '')
+        return left + ':' + right
 
     # New function implementations
     def visitCountExpr(self, ctx:ExcelFormulaParser.CountExprContext):
@@ -213,12 +241,39 @@ class FormulaConverterVisitor(ExcelFormulaVisitor):
         return f"indirect(data, {ref})"
 
     def visitCountIfsExpr(self, ctx:ExcelFormulaParser.CountIfsExprContext):
-        ranges_criteria = []
-        for i in range(0, len(ctx.range_()), 2):
+        keys_lists = []
+        criteria_list = []
+        text_ranges = []
+        # Ranges and criteria alternate: range, crit, range, crit, ...
+        for i in range(0, len(ctx.range_())):
             range_text = ctx.range_(i).getText()
             sheet, cells = self._extract_sheet_and_cells(range_text)
-            criteria = self.visit(ctx.expression(i//2))
-            ranges_criteria.append(f"('{sheet}', '{cells}', {criteria})")
+            start, end = cells.split(':')
+            self.dependencies.add(f"{sheet}!{start}:{end}")
+            text_ranges.append((sheet, start, end))
+            crit = self.visit(ctx.expression(i))
+            criteria_list.append(crit)
+            keys = self._keys_for_range(sheet, start, end)
+            if keys:
+                # Track all semantic keys used
+                for k in keys:
+                    self.input_keys.add((sheet, k))
+                keys_lists.append(keys)
+            else:
+                keys_lists.append(None)
+        # If all ranges mapped to keys and all on same sheet, emit key-based countifs
+        if all(k is not None for k in keys_lists):
+            # Determine a sheet to use (prefer current when present among ranges)
+            sheet_candidates = {s for (s, _, _) in text_ranges}
+            out_sheet = self.sheet_name if self.sheet_name in sheet_candidates else next(iter(sheet_candidates))
+            return f"countifs_keys(data, '{out_sheet}', {repr(keys_lists)}, {repr(criteria_list)})"
+        # Otherwise, fall back to cell-based COUNTIFS, but enforce strict for external unmapped ranges
+        ranges_criteria = []
+        for (sheet, start, end), crit, keys in zip(text_ranges, criteria_list, keys_lists):
+            if keys is None and sheet != self.sheet_name and self.strict:
+                self.unresolved.add(f"{sheet}!{start}:{end}")
+                raise ValueError(f"Unmapped external range {sheet}!{start}:{end} in strict mode")
+            ranges_criteria.append(f"('{sheet}', '{start}:{end}', {crit})")
         return f"countifs(data, [{', '.join(ranges_criteria)}])"
 
     def visitEoMonthExpr(self, ctx:ExcelFormulaParser.EoMonthExprContext):
@@ -242,6 +297,9 @@ class FormulaConverterVisitor(ExcelFormulaVisitor):
             for k in keys:
                 self.input_keys.add((sheet, k))
             return f"average_keys(data, '{sheet}', {repr(keys)})"
+        if sheet != self.sheet_name and self.strict:
+            self.unresolved.add(f"{sheet}!{start}:{end}")
+            raise ValueError(f"Unmapped external range {sheet}!{start}:{end} in strict mode")
         return f"average_range(data, '{sheet}', '{start}', '{end}')"
 
     def visitSumIfExpr(self, ctx:ExcelFormulaParser.SumIfExprContext):
@@ -254,6 +312,9 @@ class FormulaConverterVisitor(ExcelFormulaVisitor):
             for k in keys:
                 self.input_keys.add((sheet, k))
             return f"sum_if_keys(data, '{sheet}', {repr(keys)}, {criteria})"
+        if sheet != self.sheet_name and self.strict:
+            self.unresolved.add(f"{sheet}!{start}:{end}")
+            raise ValueError(f"Unmapped external range {sheet}!{start}:{end} in strict mode")
         return f"sum_if(data, '{sheet}', '{start}', '{end}', {criteria})"
 
     def visitConcatExpr(self, ctx:ExcelFormulaParser.ConcatExprContext):

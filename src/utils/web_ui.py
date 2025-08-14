@@ -35,7 +35,7 @@ def get_data():
     return jsonify(data)
 
 
-def process_excel_file(file_path: str, include_code: bool = False):
+def process_excel_file(file_path: str, include_code: bool = False, strict: bool = False):
     """Process a single Excel file path through conversion and evaluation."""
     extracted = extract_data_and_formulas_from_excel(file_path)
 
@@ -62,7 +62,7 @@ def process_excel_file(file_path: str, include_code: bool = False):
         sheet_cell_to_key[sheet_name].update(sheet_data.get("cell_to_key", {}))
 
     converter = ExcelToPythonConverter({})
-    shared_data = { 'cell_to_key_map': sheet_cell_to_key }
+    shared_data = { 'cell_to_key_map': sheet_cell_to_key, 'strict_no_cells': strict }
 
     converted = []
     errors = []
@@ -101,6 +101,7 @@ def process_excel_file(file_path: str, include_code: bool = False):
                 "python_expression": conv.python_expression,
                 "dependencies": deps,
                 "inputs": conv.input_keys,
+                "unresolved_inputs": conv.unresolved_inputs,
             })
 
         
@@ -140,8 +141,9 @@ def convert_endpoint():
     file.save(file_path)
 
     include_code = request.args.get('include_code') in ('1', 'true', 'True')
+    strict = request.args.get('strict') in ('1', 'true', 'True')
 
-    result = process_excel_file(file_path, include_code=include_code)
+    result = process_excel_file(file_path, include_code=include_code, strict=strict)
     return jsonify(result)
 
 

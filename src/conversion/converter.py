@@ -26,6 +26,7 @@ class ConvertedFormula:
     description: str
     rule_type: str
     input_keys: List[str]
+    unresolved_inputs: List[str]
 
 
 class ExcelToPythonConverter:
@@ -78,6 +79,18 @@ class ExcelToPythonConverter:
         }
         return descriptions.get(rule_type, "Unknown formula type")
 
+    def _map_dep_to_key(self, dep: str, cell_to_key_map: Dict[str, Dict[str, str]]) -> str:
+        """Map a dependency like 'Sheet!B14' to 'Sheet:Key' if available, else return original dep."""
+        if '!' not in dep:
+            return dep
+        sheet, cell = dep.split('!')
+        # Normalize cell (strip $ if any snuck in)
+        cell = cell.replace('$', '')
+        key = cell_to_key_map.get(sheet, {}).get(cell)
+        if key:
+            return f"{sheet}:{key}"
+        return dep
+
     def analyze_formula(self, formula: str, cell: str, sheet: str, shared_data: Dict[str, Any]) -> ConvertedFormula:
         """Analyze and convert a single formula using ANTLR."""
         original = formula
@@ -101,6 +114,7 @@ class ExcelToPythonConverter:
         visitor = FormulaConverterVisitor(self.data, shared_data, sheet)
         python_expression = visitor.visit(tree)
 
+        # Build dependencies list (expand ranges) and map to keys where possible
         dependencies = visitor.dependencies
         dep_list = []
         for dep in dependencies:
@@ -122,16 +136,22 @@ class ExcelToPythonConverter:
         seen = set()
         unique_deps = [x for x in dep_list if not (x in seen or seen.add(x))]
 
+        # Map to semantic keys where possible
+        cell_to_key_map = shared_data.get('cell_to_key_map', {})
+        mapped_deps = [self._map_dep_to_key(d, cell_to_key_map) for d in unique_deps]
+
+        # Build graph with mapped dependencies
         deps_graph = nx.DiGraph()
         node_id = f"{sheet}!{cell}"
         deps_graph.add_node(node_id)
-        for dep in unique_deps:
+        for dep in mapped_deps:
             deps_graph.add_edge(dep, node_id)
 
         rule_type = self.classify_formula(formula)
         description = self.generate_description(formula, rule_type)
 
         input_keys = [f"{s}:{k}" for (s, k) in sorted(visitor.input_keys)]
+        unresolved_inputs = sorted(visitor.unresolved)
 
         return ConvertedFormula(
             original_formula=original,
@@ -142,6 +162,7 @@ class ExcelToPythonConverter:
             description=description,
             rule_type=rule_type,
             input_keys=input_keys,
+            unresolved_inputs=unresolved_inputs,
         )
 
     def generate_python_function(self, converted: ConvertedFormula) -> str:
