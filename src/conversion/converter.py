@@ -118,7 +118,11 @@ class ExcelToPythonConverter:
         dependencies = visitor.dependencies
         dep_list = []
         for dep in dependencies:
-            if ':' in dep:
+            if dep.startswith('NAMED_RANGE:'):
+                # Handle named range dependencies
+                dep_list.append(dep)
+            elif ':' in dep and '!' in dep:
+                # Handle range dependencies (e.g., "Sheet1!A1:B5")
                 sheet_name, cells = dep.split('!')
                 start, end = cells.split(':')
                 # Expand range into individual cells
@@ -130,7 +134,11 @@ class ExcelToPythonConverter:
                 for col in range(ord(col_start), ord(col_end) + 1):
                     for row in range(row_start, row_end + 1):
                         dep_list.append(f"{sheet_name}!{chr(col)}{row}")
+            elif '!' in dep:
+                # Handle single cell dependencies (e.g., "Sheet1!A1")
+                dep_list.append(dep)
             else:
+                # Handle other dependencies
                 dep_list.append(dep)
 
         seen = set()

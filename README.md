@@ -33,6 +33,17 @@ BAH_RuleBuilder/
     └── test_converter.py
 ```
 
+## Features
+
+
+### Formula Conversion
+The system converts Excel formulas to Python expressions while maintaining:
+- Mathematical operations and functions
+- Logical operations (IF, AND, OR, etc.)
+- Excel-specific functions (VLOOKUP, INDEX, etc.)
+- Cell references and ranges
+- Named range references
+
 ## Workflow
 
 1.  **Place Input Files:** Put your Excel files (e.g., `.xlsx`, `.xlsm`) into the `data/input/` directory.

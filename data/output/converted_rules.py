@@ -30,7 +30,7 @@ def rule_formulas_c3(data, shared_data):
     Original Excel formula: =$B3/SUM($B$2:$B$9)
     Cell: Formulas!C3
     Rule type: weight_calculation
-    Dependencies: Formulas:Color, Formulas:Country of origin, Formulas:Mileage, Formulas:Year, Formulas:Options, Formulas:Engine size, Formulas:Transmission, Formulas:Features
+    Dependencies: Formulas:Country of origin, Formulas:Color, Formulas:Mileage, Formulas:Year, Formulas:Options, Formulas:Engine size, Formulas:Transmission, Formulas:Features
     Inputs: Formulas:Color, Formulas:Country of origin, Formulas:Engine size, Formulas:Features, Formulas:Mileage, Formulas:Options, Formulas:Transmission, Formulas:Year
     """
     try:
@@ -46,7 +46,7 @@ def rule_formulas_c4(data, shared_data):
     Original Excel formula: =$B4/SUM($B$2:$B$9)
     Cell: Formulas!C4
     Rule type: weight_calculation
-    Dependencies: Formulas:Mileage, Formulas:Country of origin, Formulas:Color, Formulas:Year, Formulas:Options, Formulas:Engine size, Formulas:Transmission, Formulas:Features
+    Dependencies: Formulas:Country of origin, Formulas:Color, Formulas:Mileage, Formulas:Year, Formulas:Options, Formulas:Engine size, Formulas:Transmission, Formulas:Features
     Inputs: Formulas:Color, Formulas:Country of origin, Formulas:Engine size, Formulas:Features, Formulas:Mileage, Formulas:Options, Formulas:Transmission, Formulas:Year
     """
     try:
@@ -62,7 +62,7 @@ def rule_formulas_c5(data, shared_data):
     Original Excel formula: =$B5/SUM($B$2:$B$9)
     Cell: Formulas!C5
     Rule type: weight_calculation
-    Dependencies: Formulas:Year, Formulas:Country of origin, Formulas:Color, Formulas:Mileage, Formulas:Options, Formulas:Engine size, Formulas:Transmission, Formulas:Features
+    Dependencies: Formulas:Country of origin, Formulas:Color, Formulas:Mileage, Formulas:Year, Formulas:Options, Formulas:Engine size, Formulas:Transmission, Formulas:Features
     Inputs: Formulas:Color, Formulas:Country of origin, Formulas:Engine size, Formulas:Features, Formulas:Mileage, Formulas:Options, Formulas:Transmission, Formulas:Year
     """
     try:
@@ -78,7 +78,7 @@ def rule_formulas_c6(data, shared_data):
     Original Excel formula: =$B6/SUM($B$2:$B$9)
     Cell: Formulas!C6
     Rule type: weight_calculation
-    Dependencies: Formulas:Options, Formulas:Country of origin, Formulas:Color, Formulas:Mileage, Formulas:Year, Formulas:Engine size, Formulas:Transmission, Formulas:Features
+    Dependencies: Formulas:Country of origin, Formulas:Color, Formulas:Mileage, Formulas:Year, Formulas:Options, Formulas:Engine size, Formulas:Transmission, Formulas:Features
     Inputs: Formulas:Color, Formulas:Country of origin, Formulas:Engine size, Formulas:Features, Formulas:Mileage, Formulas:Options, Formulas:Transmission, Formulas:Year
     """
     try:
@@ -94,7 +94,7 @@ def rule_formulas_c7(data, shared_data):
     Original Excel formula: =$B7/SUM($B$2:$B$9)
     Cell: Formulas!C7
     Rule type: weight_calculation
-    Dependencies: Formulas:Engine size, Formulas:Country of origin, Formulas:Color, Formulas:Mileage, Formulas:Year, Formulas:Options, Formulas:Transmission, Formulas:Features
+    Dependencies: Formulas:Country of origin, Formulas:Color, Formulas:Mileage, Formulas:Year, Formulas:Options, Formulas:Engine size, Formulas:Transmission, Formulas:Features
     Inputs: Formulas:Color, Formulas:Country of origin, Formulas:Engine size, Formulas:Features, Formulas:Mileage, Formulas:Options, Formulas:Transmission, Formulas:Year
     """
     try:
@@ -110,7 +110,7 @@ def rule_formulas_c8(data, shared_data):
     Original Excel formula: =$B8/SUM($B$2:$B$9)
     Cell: Formulas!C8
     Rule type: weight_calculation
-    Dependencies: Formulas:Transmission, Formulas:Country of origin, Formulas:Color, Formulas:Mileage, Formulas:Year, Formulas:Options, Formulas:Engine size, Formulas:Features
+    Dependencies: Formulas:Country of origin, Formulas:Color, Formulas:Mileage, Formulas:Year, Formulas:Options, Formulas:Engine size, Formulas:Transmission, Formulas:Features
     Inputs: Formulas:Color, Formulas:Country of origin, Formulas:Engine size, Formulas:Features, Formulas:Mileage, Formulas:Options, Formulas:Transmission, Formulas:Year
     """
     try:
@@ -126,7 +126,7 @@ def rule_formulas_c9(data, shared_data):
     Original Excel formula: =$B9/SUM($B$2:$B$9)
     Cell: Formulas!C9
     Rule type: weight_calculation
-    Dependencies: Formulas:Features, Formulas:Country of origin, Formulas:Color, Formulas:Mileage, Formulas:Year, Formulas:Options, Formulas:Engine size, Formulas:Transmission
+    Dependencies: Formulas:Country of origin, Formulas:Color, Formulas:Mileage, Formulas:Year, Formulas:Options, Formulas:Engine size, Formulas:Transmission, Formulas:Features
     Inputs: Formulas:Color, Formulas:Country of origin, Formulas:Engine size, Formulas:Features, Formulas:Mileage, Formulas:Options, Formulas:Transmission, Formulas:Year
     """
     try:
@@ -174,7 +174,7 @@ def rule_formulas_e3(data, shared_data):
     Original Excel formula: =IF(OR(Source!G3=Source!B20,Source!H3=Source!B20,Source!I3=Source!B20),1,0)
     Cell: Formulas!E3
     Rule type: general_calculation
-    Dependencies: Source!I3, Source:Color, Source:Make:GER, Source!H3
+    Dependencies: Source!H3, Source:Make:GER, Source!I3, Source:Color
     Inputs: Source:Color, Source:Make:GER
     """
     try:
@@ -200,6 +200,22 @@ def rule_formulas_e4(data, shared_data):
         print(f"Error in rule_formulas_e4: {e}")
         return None
 
+def rule_formulas_i4(data, shared_data):
+    """
+    General calculation or transformation
+    Original Excel formula: ="I reference a named cell. The value is: " & Named_Cell
+    Cell: Formulas!I4
+    Rule type: general_calculation
+    Dependencies: NAMED_RANGE:Named_Cell, Formulas!I2
+    Inputs: 
+    """
+    try:
+        result = str("I reference a named cell. The value is: ") + str(get_cell(data, 'Formulas', 'I2'))
+        return result
+    except Exception as e:
+        print(f"Error in rule_formulas_i4: {e}")
+        return None
+
 def rule_formulas_e5(data, shared_data):
     """
     Check if condition is met and return 1 or 0
@@ -222,7 +238,7 @@ def rule_formulas_e6(data, shared_data):
     Original Excel formula: =(COUNTIF(Source!B8:B10, Source!G6)+COUNTIF(Source!B8:B10,Source!H6)+COUNTIF(Source!B8:B10,Source!I6)+COUNTIF(Source!B8:B10,Source!J6))/4
     Cell: Formulas!E6
     Rule type: count_matching
-    Dependencies: Source!J6, Source:Year:GER, Source!H6, Source!I6, Source:Option1, Source:Option2, Source:Option3
+    Dependencies: Source!J6, Source!H6, Source!I6, Source:Option1, Source:Option2, Source:Option3, Source:Year:GER
     Inputs: Source:Option1, Source:Option2, Source:Option3, Source:Year:GER
     """
     try:
@@ -270,7 +286,7 @@ def rule_formulas_e9(data, shared_data):
     Original Excel formula: =(IF(AND(Source!G9="Auto-dimming Mirrors",Source!B16="YES"),1,0) + IF(AND(Source!G10="Heated seats",Source!B15="YES"),1,0) + IF(AND(Source!G11="Leather Seats",Source!B19="YES"),1,0) + IF(AND(Source!G12="Auto Wipers",Source!B17="YES"),1,0))/ROWS(Source!G9:G12)
     Cell: Formulas!E9
     Rule type: scoring_rule
-    Dependencies: Source:Door count:GER, Source:Engine:GER, Source:Heated seats, Source:Option2:GER, Source:Option3:GER, Source:Auto Wipers, Source:Leather Seats, Source:Auto-dimming Mirrors
+    Dependencies: Source:Option2:GER, Source:Option3:GER, Source:Door count:GER, Source:Engine:GER, Source:Heated seats, Source:Auto-dimming Mirrors, Source:Leather Seats, Source:Auto Wipers
     Inputs: Source:Auto Wipers, Source:Auto-dimming Mirrors, Source:Door count:GER, Source:Engine:GER, Source:Heated seats, Source:Leather Seats, Source:Option2:GER, Source:Option3:GER
     """
     try:
@@ -299,14 +315,14 @@ def rule_unparsedformulas_b1(data, shared_data):
 def rule_unparsedformulas_b2(data, shared_data):
     """
     General calculation or transformation
-    Original Excel formula: ='[1]WS White Space'!A1
+    Original Excel formula: ='WS White Space'!A1
     Cell: UnparsedFormulas!B2
     Rule type: general_calculation
-    Dependencies: [1]WS White Space!A1
+    Dependencies: WS White Space!A1
     Inputs: 
     """
     try:
-        result = get_cell(data, '[1]WS White Space', 'A1')
+        result = get_cell(data, 'WS White Space', 'A1')
         return result
     except Exception as e:
         print(f"Error in rule_unparsedformulas_b2: {e}")
@@ -382,7 +398,7 @@ def rule_formulas_e10(data, shared_data):
     Original Excel formula: =E2*C2+E3*C3+E4*C4+E5*C5+E6*C6+E7*C7+E8*C8+E9*C9
     Cell: Formulas!E10
     Rule type: general_calculation
-    Dependencies: Formulas!C2, Formulas!E3, Formulas!E2, Formulas!E9, Formulas!E6, Formulas!C4, Formulas!C8, Formulas!C9, Formulas!E5, Formulas!C6, Formulas!C7, Formulas!E8, Formulas!C3, Formulas!C5, Formulas!E4, Formulas!E7
+    Dependencies: Formulas!E2, Formulas!C5, Formulas!C9, Formulas!E3, Formulas!C2, Formulas!C8, Formulas!C7, Formulas!C6, Formulas!E9, Formulas!E4, Formulas!C4, Formulas!E8, Formulas!E7, Formulas!E6, Formulas!E5, Formulas!C3
     Inputs: 
     """
     try:

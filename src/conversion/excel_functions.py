@@ -31,6 +31,54 @@ def get_value(data, sheet, key, default=0):
     return default
 
 
+def get_named_range(data, named_range, default=0):
+    """
+    Get value from a named range reference.
+    This function resolves named ranges to their actual cell values.
+    """
+    try:
+        # Check if we have named range mappings in the data
+        named_ranges = data.get('_named_ranges', {})
+        if named_range in named_ranges:
+            sheet, cell_ref = named_ranges[named_range]
+            return get_cell(data, sheet, cell_ref)
+        
+        # If no mapping found, try to find it in any sheet
+        for sheet_name in data:
+            if sheet_name == '_named_ranges':
+                continue
+            sheet_data = data[sheet_name]
+            if named_range in sheet_data:
+                return sheet_data[named_range]
+        
+        return default
+    except Exception:
+        return default
+
+
+def get_range(data, sheet, start_cell, end_cell, default=0):
+    """
+    Get a range of cells from the data structure.
+    Returns a list of values from the specified range.
+    """
+    try:
+        values = []
+        start_col, start_row = parse_cell_ref(start_cell)
+        end_col, end_row = parse_cell_ref(end_cell)
+        
+        for row in range(start_row, end_row + 1):
+            for col in range(start_col, end_col + 1):
+                cell_ref = f"{chr(ord('A') + col - 1)}{row}"
+                try:
+                    value = data[sheet][cell_ref]
+                    values.append(value)
+                except KeyError:
+                    values.append(default)
+        return values
+    except Exception:
+        return [default]
+
+
 # Key-based helpers
 
 def _iter_key_values(data, sheet, keys):

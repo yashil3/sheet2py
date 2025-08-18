@@ -3,82 +3,170 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rule builder</title>
+    <title>BAH RuleBuilder Demo</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
     <div class="container">
-        <h1 class="title">Dataset</h1>
-        
-        {% for filename, file_data in data.items() %}
-        <div class="file-section">
-            <h2 class="file-title">{{ filename }}</h2>
+        <header class="demo-header">
+            <h1 class="title">BAH RuleBuilder Demo</h1>
+            <p class="subtitle">Excel Formula to Python Rules Converter</p>
+        </header>
+
+        <!-- File Upload Section -->
+        <div class="upload-section">
+            <h2>Upload Excel File</h2>
+            <form id="uploadForm" enctype="multipart/form-data">
+                <div class="file-input-wrapper">
+                    <input type="file" id="excelFile" name="file" accept=".xlsx,.xlsm,.xls" required>
+                    <label for="excelFile" class="file-label">
+                        <span class="file-text">Choose Excel file or drag & drop</span>
+                    </label>
+                </div>
+                
+                <div class="options">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="includeCode" name="includeCode">
+                        <span>Include Generated Python Code</span>
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="strictMode" name="strictMode">
+                        <span>Strict Mode (No Cell References)</span>
+                    </label>
+                </div>
+                
+                <button type="submit" class="upload-btn" id="uploadBtn">
+                    <span class="btn-text">Convert to Python Rules</span>
+                    <span class="btn-loading" style="display: none;">Converting...</span>
+                </button>
+            </form>
+        </div>
+
+        <!-- Results Section -->
+        <div id="resultsSection" class="results-section" style="display: none;">
+            <h2>Conversion Results</h2>
             
-            <!-- Vehicle Info Section -->
-            {% if file_data.key_value_data %}
-                {% for sheet_name, sheet_data in file_data.key_value_data.items() %}
-                <div class="section">
-                    <div class="section-header" onclick="toggleSection('vehicle-info-{{ loop.index }}')">
-                        <span>Vehicle Info</span>
-                        <span class="toggle-icon">^</span>
+            <!-- Summary Cards -->
+            <div class="summary-cards">
+                <div class="summary-card">
+                    <div class="card-content">
+                        <h3>File Processed</h3>
+                        <p id="fileName">-</p>
                     </div>
-                    <div id="vehicle-info-{{ loop.index }}" class="section-content">
-                        <div class="data-grid">
-                            {% for key, value in sheet_data.items() %}
-                            <div class="data-row">
-                                <div class="data-key">{{ key }}</div>
-                                <div class="data-value">{{ value }}</div>
+                </div>
+                <div class="summary-card">
+                    <div class="card-content">
+                        <h3>Formulas Converted</h3>
+                        <p id="convertedCount">-</p>
+                    </div>
+                </div>
+                <div class="summary-card">
+                    <div class="card-content">
+                        <h3>Success Rate</h3>
+                        <p id="successRate">-</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Conversion Details -->
+            <div class="conversion-details">
+                <div class="tabs">
+                    <button class="tab-btn active" data-tab="rules">Rules Summary</button>
+                    <button class="tab-btn" data-tab="dependencies">Dependencies</button>
+                    <button class="tab-btn" data-tab="evaluation">Evaluation</button>
+                    <button class="tab-btn" data-tab="json-input">JSON Data Input</button>
+                    <button class="tab-btn" data-tab="code">Python Code</button>
+                </div>
+
+                <div class="tab-content">
+                    <!-- Rules Summary Tab -->
+                    <div id="rules" class="tab-pane active">
+                        <div id="rulesList" class="rules-list"></div>
+                    </div>
+
+                    <!-- Dependencies Tab -->
+                    <div id="dependencies" class="tab-pane">
+                        <div id="dependencyGraph" class="dependency-graph">
+                            <h3>Formula Dependencies</h3>
+                            <div id="dependencyList"></div>
+                        </div>
+                    </div>
+
+                    <!-- Evaluation Tab -->
+                    <div id="evaluation" class="tab-pane">
+                        <div id="evaluationResults" class="evaluation-results">
+                            <h3>Rule Evaluation Results</h3>
+                            <div id="evaluationList"></div>
+                        </div>
+                    </div>
+
+                    <!-- JSON Data Input Tab -->
+                    <div id="json-input" class="tab-pane">
+                        <div class="json-input-section">
+                            <h3>Input Custom JSON Data for Rule Evaluation</h3>
+                            <p class="json-description">
+                                Enter JSON data that matches the schema required by your converted rules. 
+                                This allows you to evaluate rules against different data scenarios without Excel files.
+                            </p>
+                            
+                            <div class="json-input-controls">
+                                <button id="loadSampleData" class="btn-secondary">Load Sample Data</button>
+                                <button id="validateJson" class="btn-secondary">Validate JSON</button>
+                                <button id="evaluateRules" class="btn-primary">Evaluate Rules</button>
                             </div>
-                            {% endfor %}
+                            
+                            <div class="json-editor-container">
+                                <label for="jsonInput">JSON Data:</label>
+                                <textarea id="jsonInput" class="json-editor" placeholder='Enter JSON data here...' rows="15"></textarea>
+                            </div>
+                            
+                            <div id="jsonValidation" class="json-validation"></div>
+                            
+                            <div id="customEvaluationResults" class="custom-evaluation-results" style="display: none;">
+                                <h4>Custom Evaluation Results</h4>
+                                <div id="customResultsList"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Python Code Tab -->
+                    <div id="code" class="tab-pane">
+                        <div id="pythonCode" class="python-code">
+                            <h3>Generated Python Rules</h3>
+                            <pre id="codeOutput"><code>Upload a file and check "Include Generated Python Code" to see the generated rules.</code></pre>
                         </div>
                     </div>
                 </div>
-                {% endfor %}
-            {% endif %}
-            
-            <!-- Customer Preferences Section -->
-            {% if file_data.customer_preferences %}
-                {% for sheet_name, pref_data in file_data.customer_preferences.items() %}
-                <div class="section">
-                    <div class="section-header" onclick="toggleSection('customer-prefs-{{ loop.index }}')">
-                        <span>Customer Prefs</span>
-                        <span class="toggle-icon">^</span>
-                    </div>
-                    <div id="customer-prefs-{{ loop.index }}" class="section-content">
-                        <div class="preferences-grid">
-                            {% for pref_name, pref_info in pref_data.preferences.items() %}
-                            <div class="pref-row">
-                                <div class="pref-name">{{ pref_name }}</div>
-                                <div class="pref-values">
-                                    {% if pref_info.get('preference_values') %}
-                                        {% for value in pref_info.get('preference_values', []) %}
-                                            <span class="pref-value-tag">{{ value }}</span>
-                                        {% endfor %}
-                                    {% else %}
-                                        <span class="no-values">No values specified</span>
-                                    {% endif %}
-                                </div>
-                                <div class="pref-weight">Weight: {{ pref_info.weight }}</div>
-                                <div class="pref-relative">{{ "%.1f%%"|format(pref_info.relative_weight * 100) }}</div>
-                            </div>
-                            {% endfor %}
-                        </div>
-                        <div class="total-weight">
-                            Total Weight: {{ pref_data.total_weight }}
-                        </div>
+            </div>
+        </div>
+
+        <!-- Demo Instructions -->
+        <div class="demo-instructions">
+            <h2>Demo Instructions</h2>
+            <div class="instruction-steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h4>Upload Excel File</h4>
+                        <p>Choose an Excel file (.xlsx, .xlsm, .xls) containing formulas to convert</p>
                     </div>
                 </div>
-                {% endfor %}
-            {% endif %}
-            
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h4>Configure Options</h4>
+                        <p>Select whether to include generated Python code and strict mode settings</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h4>View Results</h4>
+                        <p>Explore converted rules, dependencies, evaluation results, and generated code</p>
+                    </div>
+                </div>
+            </div>
         </div>
-        {% endfor %}
-        
-        {% if not data %}
-        <div class="no-data">
-            <p>No data found. Please ensure extracted_data.json exists in the project directory.</p>
-        </div>
-        {% endif %}
     </div>
 
     <script src="{{ url_for('static', filename='script.js') }}"></script>

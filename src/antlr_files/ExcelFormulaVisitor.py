@@ -1,4 +1,4 @@
-# Generated from ExcelFormula.g4 by ANTLR 4.13.2
+# Generated from src/antlr_files/ExcelFormula.g4 by ANTLR 4.13.2
 from antlr4 import *
 if "." in __name__:
     from .ExcelFormulaParser import ExcelFormulaParser
@@ -66,6 +66,11 @@ class ExcelFormulaVisitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by ExcelFormulaParser#NotExpr.
     def visitNotExpr(self, ctx:ExcelFormulaParser.NotExprContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by ExcelFormulaParser#NamedRangeExpr.
+    def visitNamedRangeExpr(self, ctx:ExcelFormulaParser.NamedRangeExprContext):
         return self.visitChildren(ctx)
 
 
@@ -171,6 +176,11 @@ class ExcelFormulaVisitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by ExcelFormulaParser#cellReference.
     def visitCellReference(self, ctx:ExcelFormulaParser.CellReferenceContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by ExcelFormulaParser#namedRange.
+    def visitNamedRange(self, ctx:ExcelFormulaParser.NamedRangeContext):
         return self.visitChildren(ctx)
 
 

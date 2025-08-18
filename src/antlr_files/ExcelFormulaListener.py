@@ -1,4 +1,4 @@
-# Generated from ExcelFormula.g4 by ANTLR 4.13.2
+# Generated from src/antlr_files/ExcelFormula.g4 by ANTLR 4.13.2
 from antlr4 import *
 if "." in __name__:
     from .ExcelFormulaParser import ExcelFormulaParser
@@ -113,6 +113,15 @@ class ExcelFormulaListener(ParseTreeListener):
 
     # Exit a parse tree produced by ExcelFormulaParser#NotExpr.
     def exitNotExpr(self, ctx:ExcelFormulaParser.NotExprContext):
+        pass
+
+
+    # Enter a parse tree produced by ExcelFormulaParser#NamedRangeExpr.
+    def enterNamedRangeExpr(self, ctx:ExcelFormulaParser.NamedRangeExprContext):
+        pass
+
+    # Exit a parse tree produced by ExcelFormulaParser#NamedRangeExpr.
+    def exitNamedRangeExpr(self, ctx:ExcelFormulaParser.NamedRangeExprContext):
         pass
 
 
@@ -302,6 +311,15 @@ class ExcelFormulaListener(ParseTreeListener):
 
     # Exit a parse tree produced by ExcelFormulaParser#cellReference.
     def exitCellReference(self, ctx:ExcelFormulaParser.CellReferenceContext):
+        pass
+
+
+    # Enter a parse tree produced by ExcelFormulaParser#namedRange.
+    def enterNamedRange(self, ctx:ExcelFormulaParser.NamedRangeContext):
+        pass
+
+    # Exit a parse tree produced by ExcelFormulaParser#namedRange.
+    def exitNamedRange(self, ctx:ExcelFormulaParser.NamedRangeContext):
         pass
 
 

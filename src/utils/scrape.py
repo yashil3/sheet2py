@@ -3,19 +3,44 @@ from openpyxl import load_workbook
 
 
 def extract_data_and_formulas_from_excel(file_path):
-    """Extracts formulas, cell data, and key-value mappings from an Excel file.
+    """Extracts formulas, cell data, key-value mappings, and named ranges from an Excel file.
     Detects explicit Key/Value tables (two columns labeled 'Key' and 'Value') and
     also implicit label/value pairs without headers (e.g., labels in one column and values in the next).
     Additionally detects criteria matrices with a 'Key' column and multiple header columns, mapping
     each data cell to a derived key of the form '<row_key>:<column_header>'.
+    Also extracts named ranges defined in the workbook.
     Returns per sheet:
       - formulas: list of {cell, formula}
       - data: dict of cell_reference -> value
       - key_values: dict of key -> value
       - cell_to_key: dict of value_cell_reference -> key (e.g., 'B12' -> 'Engine' or 'Color:Choice1')
+    And at workbook level:
+      - named_ranges: dict of named_range_name -> (sheet_name, cell_reference)
     """
     workbook = load_workbook(filename=file_path, data_only=True)  # Use data_only=True to get values
     formulas_workbook = load_workbook(filename=file_path, data_only=False)
+
+    # Extract named ranges from the workbook
+    named_ranges = {}
+    try:
+        # The correct way to access defined names in openpyxl
+        if hasattr(workbook, 'defined_names') and workbook.defined_names:
+            for name, named_range in workbook.defined_names.items():
+                # Get the target of the named range
+                target = named_range.attr_text
+                if target:
+                    # Parse the target (e.g., "Sheet1!$A$1" or "Sheet1!$A$1:$B$10")
+                    if '!' in target:
+                        sheet_name, cell_ref = target.split('!', 1)
+                        # Remove quotes from sheet name if present
+                        if sheet_name.startswith("'") and sheet_name.endswith("'"):
+                            sheet_name = sheet_name[1:-1]
+                        # Remove absolute markers from cell reference
+                        cell_ref = cell_ref.replace('$', '')
+                        named_ranges[name] = (sheet_name, cell_ref)
+    except Exception as e:
+        # If named ranges can't be extracted, continue without them
+        print(f"Warning: Could not extract named ranges: {e}")
 
     extracted_data = {}
 
@@ -167,5 +192,8 @@ def extract_data_and_formulas_from_excel(file_path):
             "key_values": key_values,
             "cell_to_key": cell_to_key,
         }
+
+    # Add named ranges at the workbook level
+    extracted_data['_named_ranges'] = named_ranges
 
     return extracted_data

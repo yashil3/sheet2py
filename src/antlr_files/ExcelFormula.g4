@@ -28,6 +28,7 @@ expression
     | YEARFRAC '(' expression ',' expression ')'                # YearfracExpr
     | RIGHT '(' expression ',' expression ')'                   # RightExpr
     | cellReference                                             # CellExpr
+    | namedRange                                                # NamedRangeExpr
     | NUMBER                                                    # NumberExpr
     | STRING                                                    # StringExpr
     | expression operator=('*'|'/'|'+'|'-'|'>'|'<'|'>='|'<='|'='|'&') expression  # BinaryOpExpr
@@ -39,6 +40,9 @@ expressionList : expression (',' expression)*;
 range: cellReference ':' cellReference;
 
 cellReference: SHEET_NAME? CELL;
+
+// Named range support
+namedRange: NAMED_RANGE_IDENTIFIER;
 
 // Lexer rules
 IF      : [Ii][Ff];
@@ -72,6 +76,9 @@ QUOTED_SHEET_NAME: '\'' (~['\r\n])* '\'';
 
 // Handle absolute references with $ symbols
 CELL    : '$'? [A-Z]+ '$'? [0-9]+;
+
+// Named range identifier - must come before IDENTIFIER to avoid conflicts
+NAMED_RANGE_IDENTIFIER: [A-Za-z_][A-Za-z0-9_.]*;
 
 NUMBER  : [0-9]+('.'[0-9]+)?;
 STRING  : '"' (~'"')* '"';
