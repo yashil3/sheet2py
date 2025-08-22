@@ -432,23 +432,28 @@ def parse_cell_ref(cell_ref):
 
 def evaluate_criteria(value, criteria):
     """Evaluate criteria string like '>10' against value"""
-    criteria = criteria.strip('"')
-    if criteria.startswith('>='):
-        return value >= float(criteria[2:])
-    elif criteria.startswith('<='):
-        return value <= float(criteria[2:])
-    elif criteria.startswith('>'):
-        return value > float(criteria[1:])
-    elif criteria.startswith('<'):
-        return value < float(criteria[1:])
-    elif criteria.startswith('='):
-        return value == criteria[1:]
-    else:
-        # strip case
-        if isinstance(value, str) and isinstance(criteria, str):
-            return value.lower() == criteria.lower()
+    # Ensure criteria is a string before calling strip
+    if isinstance(criteria, str):
+        criteria = criteria.strip('"')
+        if criteria.startswith('>='):
+            return value >= float(criteria[2:])
+        elif criteria.startswith('<='):
+            return value <= float(criteria[2:])
+        elif criteria.startswith('>'):
+            return value > float(criteria[1:])
+        elif criteria.startswith('<'):
+            return value < float(criteria[1:])
+        elif criteria.startswith('='):
+            return value == criteria[1:]
         else:
-            return value == criteria
+            # strip case
+            if isinstance(value, str):
+                return value.lower() == criteria.lower()
+            else:
+                return value == criteria
+    else:
+        # If criteria is not a string, do direct comparison
+        return value == criteria
 
 
 def rows_count_keys(keys):
