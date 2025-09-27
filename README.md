@@ -1,4 +1,4 @@
-# BAH RuleBuilder
+# sheet2py
 
 This project converts Excel formulas into Python rules, providing a more maintainable and auditable way to manage complex business logic.
 
