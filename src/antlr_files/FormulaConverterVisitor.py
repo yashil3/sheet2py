@@ -182,37 +182,6 @@ class FormulaConverterVisitor(ExcelFormulaVisitor):
             raise ValueError(f"Unmapped external cell {sheet}!{cell} in strict mode")
         return f"get_cell(data, '{sheet}', '{cell}')"
 
-    def visitNamedRangeExpr(self, ctx:ExcelFormulaParser.NamedRangeExprContext):
-        """Handle named range references in formulas."""
-        named_range = ctx.getText()
-        self.dependencies.add(f"NAMED_RANGE:{named_range}")
-        
-        # Check if this named range maps to a semantic key
-        named_ranges_map = self.shared_data.get('named_ranges_map', {})
-        if named_range in named_ranges_map:
-            # Get the sheet and cell reference from the named range
-            sheet, cell_ref = named_ranges_map[named_range]
-            
-            # Check if this is a range (contains ':') or a single cell
-            if ':' in cell_ref:
-                # It's a range, handle it appropriately
-                start, end = cell_ref.split(':')
-                self.dependencies.add(f"{sheet}!{start}:{end}")
-                # For now, just return the range reference
-                return f"get_range(data, '{sheet}', '{start}', '{end}')"
-            else:
-                # It's a single cell, try to map to semantic key first
-                key_lookup = self._maybe_key_lookup(sheet, cell_ref)
-                if key_lookup:
-                    return key_lookup
-                # Fall back to cell reference
-                self.dependencies.add(f"{sheet}!{cell_ref}")
-                return f"get_cell(data, '{sheet}', '{cell_ref}')"
-        
-        # If no mapping found, use the named range directly
-        # This will be resolved at runtime by the get_named_range function
-        return f"get_named_range(data, '{named_range}')"
-
     def visitNumberExpr(self, ctx:ExcelFormulaParser.NumberExprContext):
         return ctx.NUMBER().getText()
 

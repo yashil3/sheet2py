@@ -3,28 +3,26 @@ import json
 import os
 from pathlib import Path
 from werkzeug.utils import secure_filename
-import sys
-
-# Add the project root to Python path
-project_root = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(project_root))
 
 from src.utils.scrape import extract_data_and_formulas_from_excel
 from src.conversion.converter import ExcelToPythonConverter, build_dependency_graph, topological_sort
 from src.conversion.rules_generator import generate_python_rules_file
 from src.evaluation.evaluator import evaluate_rules
 
-# Get the project root directory (two levels up from src/utils/)
-project_root = Path(__file__).parent.parent.parent
+# Resolve project root (two levels up from this file: src/utils/web_ui.py -> project root)
+CURRENT_FILE = Path(__file__).resolve()
+PROJECT_ROOT = CURRENT_FILE.parents[2]
+TEMPLATES_DIR = PROJECT_ROOT / 'templates'
+STATIC_DIR = PROJECT_ROOT / 'static'
 
-app = Flask(__name__, 
-            template_folder=str(project_root / 'templates'),
-            static_folder=str(project_root / 'static'))
+# Explicitly set template & static folders so running from any CWD works
+app = Flask(__name__, template_folder=str(TEMPLATES_DIR), static_folder=str(STATIC_DIR))
 
 
 def load_extracted_data():
     """Load the extracted data from JSON file."""
-    data_file = Path("extracted_data.json")
+    # Use project root to avoid CWD issues
+    data_file = PROJECT_ROOT / "extracted_data.json"
     if data_file.exists():
         with open(data_file, 'r') as f:
             return json.load(f)
@@ -33,8 +31,9 @@ def load_extracted_data():
 
 @app.route('/')
 def index():
-    """Main page showing the demo interface."""
-    return render_template('index.html')
+    """Main page showing the dataset viewer."""
+    data = load_extracted_data()
+    return render_template('index.html', data=data)
 
 
 @app.route('/api/data')
@@ -144,7 +143,7 @@ def convert_endpoint():
         return jsonify({"error": "No selected file"}), 400
 
     filename = secure_filename(file.filename)
-    upload_dir = Path('data/uploads')
+    upload_dir = PROJECT_ROOT / 'data' / 'uploads'
     upload_dir.mkdir(parents=True, exist_ok=True)
     file_path = str(upload_dir / filename)
     file.save(file_path)
@@ -154,38 +153,6 @@ def convert_endpoint():
 
     result = process_excel_file(file_path, include_code=include_code, strict=strict)
     return jsonify(result)
-
-
-@app.route('/api/evaluate', methods=['POST'])
-def evaluate_rules_endpoint():
-    """Evaluate converted rules against custom JSON data."""
-    try:
-        data = request.get_json()
-        if not data:
-            return jsonify({"error": "No JSON data provided"}), 400
-        
-        rules = data.get('rules', [])
-        custom_data = data.get('data', {})
-        
-        if not rules:
-            return jsonify({"error": "No rules provided"}), 400
-        
-        if not custom_data:
-            return jsonify({"error": "No data provided"}), 400
-        
-        # Evaluate the rules against the custom data
-        from src.evaluation.evaluator import evaluate_rules
-        evaluation_results = evaluate_rules(rules, custom_data)
-        
-        return jsonify({
-            "message": "Rules evaluated successfully",
-            "results": evaluation_results,
-            "rules_count": len(rules),
-            "data_keys": list(custom_data.keys())
-        })
-        
-    except Exception as e:
-        return jsonify({"error": f"Evaluation failed: {str(e)}"}), 500
 
 
 if __name__ == '__main__':

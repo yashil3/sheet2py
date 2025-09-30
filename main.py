@@ -24,8 +24,6 @@ def main():
     all_data = {}
     # For semantic mapping
     sheet_cell_to_key = {}
-    # For named ranges
-    named_ranges = {}
 
     for filename in os.listdir(input_dir):
         if filename.endswith(('.xlsx', '.xlsm')):
@@ -33,10 +31,6 @@ def main():
             logging.info(f"Extracting data and formulas from {filename}...")
             extracted_data = extract_data_and_formulas_from_excel(file_path)
             for sheet_name, sheet_data in extracted_data.items():
-                # Skip non-sheet keys like _named_ranges
-                if sheet_name.startswith('_'):
-                    continue
-                    
                 for formula_data in sheet_data["formulas"]:
                     all_formulas.append({
                         "formula": formula_data["formula"],
@@ -56,19 +50,11 @@ def main():
                 sheet_cell_to_key.setdefault(sheet_name, {})
                 sheet_cell_to_key[sheet_name].update(sheet_data.get("cell_to_key", {}))
 
-        # Extract named ranges from the workbook
-        if '_named_ranges' in extracted_data:
-            named_ranges.update(extracted_data['_named_ranges'])
-
-    # Add named ranges to the data structure for runtime access
-    all_data['_named_ranges'] = named_ranges
-
     converter = ExcelToPythonConverter({})
     # Provide shared mappings to the visitor
     strict_flag = os.getenv('STRICT_NO_CELLS', '0') in ('1', 'true', 'True')
     shared_data = {
         'cell_to_key_map': sheet_cell_to_key,
-        'named_ranges_map': named_ranges,
         'strict_no_cells': strict_flag,
     }
     converted_formulas = []
@@ -83,9 +69,9 @@ def main():
                     shared_data
                 )
                 converted_formulas.append(converted)
-                logging.info(f"Converted {formula_data['cell']}: {formula_data['formula']}")
+                logging.info(f"✓ Converted {formula_data['cell']}: {formula_data['formula']}")
             except Exception as e:
-                logging.error(f"Error converting {formula_data['cell']}: {e}")
+                logging.error(f"✗ Error converting {formula_data['cell']}: {e}")
             pbar.update(1)
 
     print(f"\nSuccessfully converted {len(converted_formulas)} formulas")
@@ -128,7 +114,7 @@ def main():
 
         with open(os.path.join(output_dir, "conversion_summary.json"), 'w') as f:
             json.dump(summary, f, indent=2)
-        print(f"Generated conversion summary: {os.path.join(output_dir, "conversion_summary.json")}")
+        print(f"✓ Generated conversion summary: {os.path.join(output_dir, "conversion_summary.json")}")
 
         # Evaluate the rules
         evaluation_results = evaluate_rules(summary, all_data)
@@ -139,7 +125,7 @@ def main():
 
         with open(os.path.join(output_dir, "conversion_summary.json"), 'w') as f:
             json.dump(summary, f, indent=2)
-        print(f"Appended evaluation results to conversion summary.")
+        print(f"✓ Appended evaluation results to conversion summary.")
 
     end_time = time.time()
     print(f"Total execution time: {end_time - start_time:.2f} seconds")

@@ -8,6 +8,22 @@ from src.conversion.excel_functions import *
 shared_data = {}
 
 # Generated rule functions
+def rule_formulas_i4(data, shared_data):
+    """
+    General calculation or transformation
+    Original Excel formula: ="I reference a named cell. The value is: " & Named_Cell
+    Cell: Formulas!I4
+    Rule type: general_calculation
+    Dependencies: 
+    Inputs: 
+    """
+    try:
+        result = str("I reference a named cell. The value is: ") + str(None)
+        return result
+    except Exception as e:
+        print(f"Error in rule_formulas_i4: {e}")
+        return None
+
 def rule_formulas_c2(data, shared_data):
     """
     Calculate relative weight as percentage of total
@@ -30,7 +46,7 @@ def rule_formulas_c3(data, shared_data):
     Original Excel formula: =$B3/SUM($B$2:$B$9)
     Cell: Formulas!C3
     Rule type: weight_calculation
-    Dependencies: Formulas:Country of origin, Formulas:Color, Formulas:Mileage, Formulas:Year, Formulas:Options, Formulas:Engine size, Formulas:Transmission, Formulas:Features
+    Dependencies: Formulas:Color, Formulas:Country of origin, Formulas:Mileage, Formulas:Year, Formulas:Options, Formulas:Engine size, Formulas:Transmission, Formulas:Features
     Inputs: Formulas:Color, Formulas:Country of origin, Formulas:Engine size, Formulas:Features, Formulas:Mileage, Formulas:Options, Formulas:Transmission, Formulas:Year
     """
     try:
@@ -110,7 +126,7 @@ def rule_formulas_c8(data, shared_data):
     Original Excel formula: =$B8/SUM($B$2:$B$9)
     Cell: Formulas!C8
     Rule type: weight_calculation
-    Dependencies: Formulas:Country of origin, Formulas:Color, Formulas:Mileage, Formulas:Year, Formulas:Options, Formulas:Engine size, Formulas:Transmission, Formulas:Features
+    Dependencies: Formulas:Transmission, Formulas:Country of origin, Formulas:Color, Formulas:Mileage, Formulas:Year, Formulas:Options, Formulas:Engine size, Formulas:Features
     Inputs: Formulas:Color, Formulas:Country of origin, Formulas:Engine size, Formulas:Features, Formulas:Mileage, Formulas:Options, Formulas:Transmission, Formulas:Year
     """
     try:
@@ -158,7 +174,7 @@ def rule_formulas_e2(data, shared_data):
     Original Excel formula: =IFERROR(IF(FIND(Source!G2,Source!B14)>0,1, 0),0)
     Cell: Formulas!E2
     Rule type: condition_check
-    Dependencies: Source:Made in, Source!G2
+    Dependencies: Source!G2, Source:Made in
     Inputs: Source:Made in
     """
     try:
@@ -174,7 +190,7 @@ def rule_formulas_e3(data, shared_data):
     Original Excel formula: =IF(OR(Source!G3=Source!B20,Source!H3=Source!B20,Source!I3=Source!B20),1,0)
     Cell: Formulas!E3
     Rule type: general_calculation
-    Dependencies: Source!H3, Source:Make:GER, Source!I3, Source:Color
+    Dependencies: Source:Color, Source:Make:GER, Source!H3, Source!I3
     Inputs: Source:Color, Source:Make:GER
     """
     try:
@@ -200,22 +216,6 @@ def rule_formulas_e4(data, shared_data):
         print(f"Error in rule_formulas_e4: {e}")
         return None
 
-def rule_formulas_i4(data, shared_data):
-    """
-    General calculation or transformation
-    Original Excel formula: ="I reference a named cell. The value is: " & Named_Cell
-    Cell: Formulas!I4
-    Rule type: general_calculation
-    Dependencies: NAMED_RANGE:Named_Cell, Formulas!I2
-    Inputs: 
-    """
-    try:
-        result = str("I reference a named cell. The value is: ") + str(get_cell(data, 'Formulas', 'I2'))
-        return result
-    except Exception as e:
-        print(f"Error in rule_formulas_i4: {e}")
-        return None
-
 def rule_formulas_e5(data, shared_data):
     """
     Check if condition is met and return 1 or 0
@@ -238,7 +238,7 @@ def rule_formulas_e6(data, shared_data):
     Original Excel formula: =(COUNTIF(Source!B8:B10, Source!G6)+COUNTIF(Source!B8:B10,Source!H6)+COUNTIF(Source!B8:B10,Source!I6)+COUNTIF(Source!B8:B10,Source!J6))/4
     Cell: Formulas!E6
     Rule type: count_matching
-    Dependencies: Source!J6, Source!H6, Source!I6, Source:Option1, Source:Option2, Source:Option3, Source:Year:GER
+    Dependencies: Source!J6, Source!H6, Source!I6, Source:Year:GER, Source:Option1, Source:Option2, Source:Option3
     Inputs: Source:Option1, Source:Option2, Source:Option3, Source:Year:GER
     """
     try:
@@ -270,7 +270,7 @@ def rule_formulas_e8(data, shared_data):
     Original Excel formula: =IF(Source!G8=Source!B13,1, 0)
     Cell: Formulas!E8
     Rule type: general_calculation
-    Dependencies: Source:Transmission, Source:Option1:GER
+    Dependencies: Source:Option1:GER, Source:Transmission
     Inputs: Source:Option1:GER, Source:Transmission
     """
     try:
@@ -286,7 +286,7 @@ def rule_formulas_e9(data, shared_data):
     Original Excel formula: =(IF(AND(Source!G9="Auto-dimming Mirrors",Source!B16="YES"),1,0) + IF(AND(Source!G10="Heated seats",Source!B15="YES"),1,0) + IF(AND(Source!G11="Leather Seats",Source!B19="YES"),1,0) + IF(AND(Source!G12="Auto Wipers",Source!B17="YES"),1,0))/ROWS(Source!G9:G12)
     Cell: Formulas!E9
     Rule type: scoring_rule
-    Dependencies: Source:Option2:GER, Source:Option3:GER, Source:Door count:GER, Source:Engine:GER, Source:Heated seats, Source:Auto-dimming Mirrors, Source:Leather Seats, Source:Auto Wipers
+    Dependencies: Source:Auto Wipers, Source:Door count:GER, Source:Heated seats, Source:Option2:GER, Source:Option3:GER, Source:Engine:GER, Source:Leather Seats, Source:Auto-dimming Mirrors
     Inputs: Source:Auto Wipers, Source:Auto-dimming Mirrors, Source:Door count:GER, Source:Engine:GER, Source:Heated seats, Source:Leather Seats, Source:Option2:GER, Source:Option3:GER
     """
     try:
@@ -350,7 +350,7 @@ def rule_unparsedformulas_b4(data, shared_data):
     Original Excel formula: =YEARFRAC(E4, D4)
     Cell: UnparsedFormulas!B4
     Rule type: general_calculation
-    Dependencies: UnparsedFormulas!D4, UnparsedFormulas!E4
+    Dependencies: UnparsedFormulas!E4, UnparsedFormulas!D4
     Inputs: 
     """
     try:
@@ -398,7 +398,7 @@ def rule_formulas_e10(data, shared_data):
     Original Excel formula: =E2*C2+E3*C3+E4*C4+E5*C5+E6*C6+E7*C7+E8*C8+E9*C9
     Cell: Formulas!E10
     Rule type: general_calculation
-    Dependencies: Formulas!E2, Formulas!C5, Formulas!C9, Formulas!E3, Formulas!C2, Formulas!C8, Formulas!C7, Formulas!C6, Formulas!E9, Formulas!E4, Formulas!C4, Formulas!E8, Formulas!E7, Formulas!E6, Formulas!E5, Formulas!C3
+    Dependencies: Formulas!C2, Formulas!E5, Formulas!E8, Formulas!C8, Formulas!C9, Formulas!C3, Formulas!C5, Formulas!E6, Formulas!C7, Formulas!E9, Formulas!E7, Formulas!E3, Formulas!C6, Formulas!E2, Formulas!C4, Formulas!E4
     Inputs: 
     """
     try:
