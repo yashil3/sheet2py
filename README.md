@@ -45,7 +45,7 @@ sheet2py/
     └── test_key_mapping.py    # Mapping validation tests
 ```
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Option 1: Command Line Interface
 
