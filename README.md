@@ -136,7 +136,7 @@ shared_data = {
 - `TODAY`, `NOW`, `DATE`
 - `YEAR`, `MONTH`, `DAY`
 
-## 🧪 Testing
+## Testing
 
 Run the comprehensive test suite:
 
